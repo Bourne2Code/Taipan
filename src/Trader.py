@@ -15,8 +15,7 @@ global Current_Port
 
 global User_Action
 
-
-Port_Names = ["Hong Kong", "Shanghai", "Nagasaki", "Saigon", "Manila", "Singapore", "Batavia"]
+Port_Names = ["Hong Kong", "Batavia", "Calcutta", "Jambi", "Muscat", "Penang", "Rangoon", "Surat"]
 TradedItems_Name = ["Silk", "Tea", "Gunpowder", "Opium"]
 TradedItems_Price = [20, 10, 50, 500]
 Current_Port = 0
@@ -71,6 +70,39 @@ def Set_Prices():
     global TradedItems_Price
     TradedItems_Price = [random.randrange(5, 45, 1), random.randrange(2, 25, 1), random.randrange(5, 55, 1), random.randrange(300, 999, 1)]
 
+def Travel_toPort():
+    global Current_Port
+
+    print('\033[39m')
+    print(f"Ports: [H,B,C,J,M,P,R,S]")
+    for i in range(7):
+        print(Port_Names[i])
+
+    Port_Desired = input("invalid selection. \nWhere would you like to go? [H,B,C,J,M,P,R,S]")
+    while (Port_Desired != "H") and (Port_Desired != "B") and (Port_Desired != "C") and (Port_Desired != "J") and (Port_Desired != "M") and (Port_Desired != "P") and (Port_Desired != "R") and (Port_Desired != "S"):
+        Port_Desired = input("invalid selection. \nWhere would you like to go? [H,B,C,J,M,P,R,S]")[0].upper()
+
+    match Port_Desired:
+        case "H":
+            Current_Port = 0
+        case "B":
+            Current_Port = 1
+        case "C":
+            Current_Port = 2
+        case "J":
+            Current_Port = 3
+        case "M":
+            Current_Port = 4
+        case "P":
+            Current_Port = 5
+        case "R":
+            Current_Port = 6
+        case "S":
+            Current_Port = 7
+
+    Set_Prices()
+
+
 def Buy_Cargo(tI):
     global TradedItems_Name
     global TradedItems_Price
@@ -110,29 +142,38 @@ def Buy_SelectItem():
         case _:
             print("What?")
 
+def Play():
+    Clear_Screen()
+    Show_Status()
+    
+    User_Action = input("Would you like to Buy, Sell, or Travel to a new port? [B,S,T]")[0].upper()
+
+    while (User_Action != "B") and (User_Action != "S") and (User_Action != "T"):
+        User_Action = input("invalid selection. \nWould you like to Buy, Sell, or Travel to a new port? [B,S,T]")[0].upper()
+
+    match User_Action:
+        case "B":
+            Buy_SelectItem()
+        case "S":
+            print("Sell!")
+        case "T":
+            Travel_toPort()
+        case _:
+            print("What?")
+
+    Show_Status()
 
 
+def main():
+    global Silver_OnHand
+    
+    Clear_Screen()
+    Config_Player()
 
-Clear_Screen()
-Config_Player()
+    Set_Prices()
+    while (Silver_OnHand < 10000000):
+        Play()
 
-Set_Prices()
 
-Show_Status()
-
-User_Action = input("Would you like to Buy, Sell, or Travel to a new port? [B,S,T]")[0].upper()
-
-while (User_Action != "B") and (User_Action != "S") and (User_Action != "T"):
-    User_Action = input("invalid selection. \nWould you like to Buy, Sell, or Travel to a new port? [B,S,T]")[0].upper()
-
-match User_Action:
-    case "B":
-        Buy_SelectItem()
-    case "S":
-        print("Sell!")
-    case "T":
-        print("Travel")
-    case _:
-        print("What?")
-
-Show_Status()
+if __name__ == "__main__":
+    main()
