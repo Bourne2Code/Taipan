@@ -78,7 +78,7 @@ def Travel_toPort():
     for i in range(7):
         print(Port_Names[i])
 
-    Port_Desired = input("invalid selection. \nWhere would you like to go? [H,B,C,J,M,P,R,S]")
+    Port_Desired = input("invalid selection. \nWhere would you like to go? [H,B,C,J,M,P,R,S]")[0].upper()
     while (Port_Desired != "H") and (Port_Desired != "B") and (Port_Desired != "C") and (Port_Desired != "J") and (Port_Desired != "M") and (Port_Desired != "P") and (Port_Desired != "R") and (Port_Desired != "S"):
         Port_Desired = input("invalid selection. \nWhere would you like to go? [H,B,C,J,M,P,R,S]")[0].upper()
 
@@ -122,6 +122,25 @@ def Buy_Cargo(tI):
         Silver_OnHand = (Silver_OnHand - Want_Buy * TradedItems_Price[tI])
         TradedItems_InShip[tI] = (TradedItems_InShip[tI] + Want_Buy)
 
+def Sell_Cargo(tI):
+    global TradedItems_Name
+    global TradedItems_Price
+    global Silver_OnHand
+    global Ship_Capacity
+    global TradedItems_InShip
+
+    print(f"Sell {TradedItems_Name[tI]}!")
+
+    Can_Sell = TradedItems_InShip[tI]
+    print(f"You can sell {Can_Sell} {TradedItems_Name[tI]}.")
+    Want_Sell = int(input("How much do you want to sell?"))
+    if (Want_Sell > Can_Sell):
+        print(f"You do not have that much {TradedItems_Name[tI]}!")
+    else:
+        Silver_OnHand = (Silver_OnHand + Want_Sell * TradedItems_Price[tI])
+        TradedItems_InShip[tI] = (TradedItems_InShip[tI] - Want_Sell)
+
+
 def Buy_SelectItem():
     global TradedItems_Name
     Clear_Screen()
@@ -142,6 +161,28 @@ def Buy_SelectItem():
         case _:
             print("What?")
 
+def Sell_SelectItem():
+    global TradedItems_Name
+    Clear_Screen()
+    Show_Status()
+    Cargo_ToSell = input("What would you like to sell? [S,T,G,O]")[0].upper()
+    while (Cargo_ToSell != "S") and (Cargo_ToSell != "T") and (Cargo_ToSell != "G") and (Cargo_ToSell != "O"):
+        Cargo_ToSell = input("invalid selection. \nWhat would you like to sell? [S,T,G,O]")[0].upper()
+
+    match Cargo_ToSell:
+        case "S":
+            Sell_Cargo(0)
+        case "T":
+            Sell_Cargo(1)
+        case "G":
+            Sell_Cargo(2)
+        case "O":
+            Sell_Cargo(3)
+        case _:
+            print("What?")
+
+
+
 def Play():
     Clear_Screen()
     Show_Status()
@@ -155,7 +196,7 @@ def Play():
         case "B":
             Buy_SelectItem()
         case "S":
-            print("Sell!")
+            Sell_SelectItem()
         case "T":
             Travel_toPort()
         case _:
