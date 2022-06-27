@@ -1,6 +1,7 @@
 import os
 import random
-#from colorama import Fore, Back, Style
+from tkinter import *
+from tkinter import ttk
 
 global Company_Name
 global Port_Names               # Constant? 
@@ -20,9 +21,40 @@ TradedItems_Name = ["Silk", "Tea", "Gunpowder", "Opium"]
 TradedItems_Price = [20, 10, 50, 500]
 Current_Port = 0
 
+GameWindow = Tk()
+GameWindow.title("Taipan!")
+
+window_width = 800
+window_height = 800
+
+# get the screen dimension
+screen_width = GameWindow.winfo_screenwidth()
+screen_height = GameWindow.winfo_screenheight()
+
+# find the center point
+center_x = int(screen_width/2 - window_width / 2)
+center_y = int(screen_height/2 - window_height / 2)
+
+# set the position of the window to the center of the screen
+GameWindow.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+GameWindow.resizable(False, False)
+
+GameFrame = ttk.Frame(GameWindow, borderwidth=5, relief="ridge", padding="10")
+GameFrame.grid(column=0, row=0, sticky=(N, W, E, S))
+
+GameWindow.columnconfigure(0, weight=1)
+GameWindow.rowconfigure(0, weight=1)
+
+Current_Port_Name = tk.StringVar()
+Current_Port_Name = Port_Names[Current_Port]
+ttk.Label(GameFrame, textvariable=Current_Port_Name).grid(column=1, row=1, sticky=(W, E))
+
+
+
 def Clear_Screen():
     os.system('cls')
-
+#    subprocess.run(["cls"])
+    
 def Config_Player():
     global Company_Name
     global Ship_Capacity
@@ -181,6 +213,50 @@ def Sell_SelectItem():
         case _:
             print("What?")
 
+def HongKong():
+
+    Clear_Screen()
+    Show_Status()
+
+    User_Action = input("Would you like to visit the Money Lender, the Bank, or the Warehouse? [M,B,W]")[0].upper()
+
+    while (User_Action != "M") and (User_Action != "B") and (User_Action != "W"):
+        User_Action = input("invalid selection. \nWould you like to visit the Money Lender, the Bank, or the Warehouse? [M,B,W]")[0].upper()
+
+    match User_Action:
+        case "M":
+            Visit_MoneyLender()
+        case "B":
+            Visit_Bank()
+        case "W":
+            Visit_Warehouse()
+        case _:
+            print("What?")
+
+
+def Visit_Bank():
+    global TradedItems_Name
+    global TradedItems_Price
+    global Silver_OnHand
+    global Ship_Capacity
+    global TradedItems_InShip
+
+    Clear_Screen()
+    Show_Status()
+
+    User_Action = input("Would you like to Deposit or Withdraw? [D,W]")[0].upper()
+
+    while (User_Action != "D") and (User_Action != "W"):
+        User_Action = input("invalid selection. \nWould you like to Deposit or Withdraw? [D,W]")[0].upper()
+
+    match User_Action:
+        case "D":
+            Visit_MoneyLender()
+        case "W":
+            Visit_Bank()
+        case _:
+            print("What?")
+
 
 
 def Play():
@@ -203,6 +279,8 @@ def Play():
             print("What?")
 
     Show_Status()
+
+
 
 
 def main():
