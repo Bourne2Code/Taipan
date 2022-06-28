@@ -77,26 +77,45 @@ def Show_Status():
     Current_Port_Name = StringVar()
     Current_Port_Name = Port_Names[Current_Port]
 
-    ttk.Label(GameFrame, text=("Current Port: " + Current_Port_Name)).grid(column=1, row=1, columnspan=6, sticky=(W, E))
+    Lbl_Header = ttk.Label(GameFrame, text=("Current Port: " + Current_Port_Name))
+    Lbl_Header.grid(column=1, row=1, columnspan=6, sticky=(W, E))
+    Lbl_Header.config(font=("Ariel", 18))
+    Lbl_Header.config(foreground="blue")
 
-    ttk.Label(GameFrame, text="PRICES").grid(column=2, row=2, columnspan=2, sticky=(W, E))
-    ttk.Label(GameFrame, text="QTY IN SHIP").grid(column=4, row=2, columnspan=2, sticky=(W, E))
-
-    for i in range(4):
-        PrLabel = ttk.Label(GameFrame, text=(TradedItems_Name[i]))
-        PrLabel.grid(column=2, row=(i+3), sticky=(W))
-        PrLabel.config(font=("Ariel", 14))
-        PrLabel.config(foreground="green")
-        
-
-    for i in range(4):
-        ttk.Label(GameFrame, text=(": " + str(TradedItems_Price[i]))).grid(column=3, row=(i+3), sticky=(W),padx=(5,99))
-
-    for i in range(4):
-        ttk.Label(GameFrame, text=(TradedItems_Name[i])).grid(column=4, row=(i+3), sticky=(W))
+    Lbl_Prices = ttk.Label(GameFrame, text="PRICES")
+    Lbl_Prices.grid(column=2, row=2, columnspan=2, sticky=(W, E))
+    Lbl_Prices.config(font=("Ariel", 16))
+    Lbl_Prices.config(foreground="green")
+    
+    Lbl_InShip = ttk.Label(GameFrame, text="QTY IN SHIP")
+    Lbl_InShip.grid(column=4, row=2, columnspan=2, sticky=(W, E))
+    Lbl_InShip.config(font=("Ariel", 16))
+    Lbl_InShip.config(foreground="green")
 
     for i in range(4):
-        ttk.Label(GameFrame, text=(": " + str(TradedItems_InShip[i]))).grid(column=5, row=(i+3), sticky=(W),padx=(5,99))
+        Lbl_PrcName = ttk.Label(GameFrame, text=(TradedItems_Name[i]))
+        Lbl_PrcName.grid(column=2, row=(i+3), sticky=(W))
+        Lbl_PrcName.config(font=("Ariel", 14))
+        Lbl_PrcName.config(foreground="green")
+
+    for i in range(4):
+        Lbl_PortPrice = ttk.Label(GameFrame, text=(": " + str(TradedItems_Price[i])))
+        Lbl_PortPrice.grid(column=3, row=(i+3), sticky=(W),padx=(5,99))
+        Lbl_PortPrice.config(font=("Ariel", 14))
+        Lbl_PortPrice.config(foreground="green")
+
+    for i in range(4):
+        Lbl_ShpQtyName = ttk.Label(GameFrame, text=(TradedItems_Name[i]))
+        Lbl_ShpQtyName.grid(column=4, row=(i+3), sticky=(W))
+        Lbl_ShpQtyName.config(font=("Ariel", 14))
+        Lbl_ShpQtyName.config(foreground="green")
+
+    for i in range(4):
+        Lbl_ShpQty = ttk.Label(GameFrame, text=(": " + str(TradedItems_InShip[i])))
+        Lbl_ShpQty.grid(column=5, row=(i+3), sticky=(W))
+        Lbl_ShpQty.config(font=("Ariel", 14))
+        Lbl_ShpQty.config(foreground="green")
+
 
     GameWindow.mainloop()
 
