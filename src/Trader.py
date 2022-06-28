@@ -21,35 +21,6 @@ TradedItems_Name = ["Silk", "Tea", "Gunpowder", "Opium"]
 TradedItems_Price = [20, 10, 50, 500]
 Current_Port = 0
 
-GameWindow = Tk()
-GameWindow.title("Taipan!")
-
-window_width = 800
-window_height = 800
-
-# get the screen dimension
-screen_width = GameWindow.winfo_screenwidth()
-screen_height = GameWindow.winfo_screenheight()
-
-# find the center point
-center_x = int(screen_width/2 - window_width / 2)
-center_y = int(screen_height/2 - window_height / 2)
-
-# set the position of the window to the center of the screen
-GameWindow.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
-GameWindow.resizable(False, False)
-
-GameFrame = ttk.Frame(GameWindow, borderwidth=5, relief="ridge", padding="10")
-GameFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-
-GameWindow.columnconfigure(0, weight=1)
-GameWindow.rowconfigure(0, weight=1)
-
-Current_Port_Name = tk.StringVar()
-Current_Port_Name = Port_Names[Current_Port]
-ttk.Label(GameFrame, textvariable=Current_Port_Name).grid(column=1, row=1, sticky=(W, E))
-
-
 
 def Clear_Screen():
     os.system('cls')
@@ -79,6 +50,57 @@ def Show_Status():
     global Ship_Capacity
     global TradedItems_InShip
 
+    GameWindow = Tk()
+    GameWindow.title("Taipan!")
+
+    window_width = 800
+    window_height = 800
+
+# get the screen dimension
+    screen_width = GameWindow.winfo_screenwidth()
+    screen_height = GameWindow.winfo_screenheight()
+
+# find the center point
+    center_x = int(screen_width/2 - window_width / 2)
+    center_y = int(screen_height/2 - window_height / 2)
+
+# set the position of the window to the center of the screen
+    GameWindow.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+#GameWindow.resizable(False, False)
+
+    GameFrame = ttk.Frame(GameWindow, borderwidth=5, relief="ridge", padding="10")
+    GameFrame.grid(column=0, row=0, sticky=(N, W, E, S))
+
+    GameWindow.columnconfigure(0, weight=1)
+    GameWindow.rowconfigure(0, weight=1)
+
+    Current_Port_Name = StringVar()
+    Current_Port_Name = Port_Names[Current_Port]
+
+    ttk.Label(GameFrame, text=("Current Port: " + Current_Port_Name)).grid(column=1, row=1, columnspan=6, sticky=(W, E))
+
+    ttk.Label(GameFrame, text="PRICES").grid(column=2, row=2, columnspan=2, sticky=(W, E))
+    ttk.Label(GameFrame, text="QTY IN SHIP").grid(column=4, row=2, columnspan=2, sticky=(W, E))
+
+    for i in range(4):
+        PrLabel = ttk.Label(GameFrame, text=(TradedItems_Name[i]))
+        PrLabel.grid(column=2, row=(i+3), sticky=(W))
+        PrLabel.config(font=("Ariel", 14))
+        PrLabel.config(foreground="green")
+        
+
+    for i in range(4):
+        ttk.Label(GameFrame, text=(": " + str(TradedItems_Price[i]))).grid(column=3, row=(i+3), sticky=(W),padx=(5,99))
+
+    for i in range(4):
+        ttk.Label(GameFrame, text=(TradedItems_Name[i])).grid(column=4, row=(i+3), sticky=(W))
+
+    for i in range(4):
+        ttk.Label(GameFrame, text=(": " + str(TradedItems_InShip[i]))).grid(column=5, row=(i+3), sticky=(W),padx=(5,99))
+
+    GameWindow.mainloop()
+
+    
     Clear_Screen()
     Game_Banner = Company_Name + " in the port of " + Port_Names[Current_Port]
     
