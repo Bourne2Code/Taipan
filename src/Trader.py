@@ -78,19 +78,24 @@ def Show_Status():
     Current_Port_Name = Port_Names[Current_Port]
 
     Lbl_Header = ttk.Label(GameFrame, text=("Current Port: " + Current_Port_Name))
-    Lbl_Header.grid(column=1, row=1, columnspan=6, sticky=(W, E))
+    Lbl_Header.grid(column=1, row=1, columnspan=7,pady=(10,20))
     Lbl_Header.config(font=("Ariel", 18))
     Lbl_Header.config(foreground="blue")
 
     Lbl_Prices = ttk.Label(GameFrame, text="PRICES")
-    Lbl_Prices.grid(column=2, row=2, columnspan=2, sticky=(W, E))
+    Lbl_Prices.grid(column=2, row=2, columnspan=2, sticky=(W))
     Lbl_Prices.config(font=("Ariel", 16))
     Lbl_Prices.config(foreground="green")
     
     Lbl_InShip = ttk.Label(GameFrame, text="QTY IN SHIP")
-    Lbl_InShip.grid(column=4, row=2, columnspan=2, sticky=(W, E))
+    Lbl_InShip.grid(column=4, row=2, columnspan=2, sticky=(W))
     Lbl_InShip.config(font=("Ariel", 16))
     Lbl_InShip.config(foreground="green")
+
+    Lbl_InWhs = ttk.Label(GameFrame, text="QTY IN WAREHOUSE")
+    Lbl_InWhs.grid(column=6, row=2, columnspan=2, sticky=(W))
+    Lbl_InWhs.config(font=("Ariel", 16))
+    Lbl_InWhs.config(foreground="green")
 
     for i in range(4):
         Lbl_PrcName = ttk.Label(GameFrame, text=(TradedItems_Name[i]))
@@ -112,10 +117,21 @@ def Show_Status():
 
     for i in range(4):
         Lbl_ShpQty = ttk.Label(GameFrame, text=(": " + str(TradedItems_InShip[i])))
-        Lbl_ShpQty.grid(column=5, row=(i+3), sticky=(W))
+        Lbl_ShpQty.grid(column=5, row=(i+3), sticky=(W),padx=(5,99))
         Lbl_ShpQty.config(font=("Ariel", 14))
         Lbl_ShpQty.config(foreground="green")
 
+    for i in range(4):
+        Lbl_WhsQtyName = ttk.Label(GameFrame, text=(TradedItems_Name[i]))
+        Lbl_WhsQtyName.grid(column=6, row=(i+3), sticky=(W))
+        Lbl_WhsQtyName.config(font=("Ariel", 14))
+        Lbl_WhsQtyName.config(foreground="green")
+
+    for i in range(4):
+        Lbl_WhsQty = ttk.Label(GameFrame, text=(": " + str(TradedItems_InWarehouse[i])))
+        Lbl_WhsQty.grid(column=7, row=(i+3), sticky=(W))
+        Lbl_WhsQty.config(font=("Ariel", 14))
+        Lbl_WhsQty.config(foreground="green")
 
     GameWindow.mainloop()
 
