@@ -1,0 +1,18 @@
+    
+    Clear_Screen()
+    Game_Banner = Company_Name + " in the port of " + Port_Names[Current_Port]
+    
+    print(Game_Banner.center(80)+"\n")
+    print('\033[32m' + "CURRENT PRICES")
+    for i in range(4):
+        print(TradedItems_Name[i].ljust(10) + ": " + str(TradedItems_Price[i]).rjust(3))
+
+    print('\033[32m' + "\nSHIP CARGO")
+    for i in range(4):
+        print(TradedItems_Name[i].ljust(10) + ": " + str(TradedItems_InShip[i]).rjust(3))
+
+
+    FreeSpace_InShip = int(Ship_Capacity - TradedItems_InShip[0] - TradedItems_InShip[1] - TradedItems_InShip[2] - TradedItems_InShip[3])
+    print(f"Availabile space in ship: {FreeSpace_InShip} of {Ship_Capacity}")
+    print('\033[39m')
+    print(f"Silver on hand: {Silver_OnHand}")

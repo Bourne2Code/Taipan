@@ -1,7 +1,48 @@
 import os
 import random
-from tkinter import *
-from tkinter import ttk
+
+class Ship:
+#    itemName = ["Silk", "Tea", "Gunpowder", "Opium"]
+    itemQty = [0, 0, 0, 0]
+    
+    def __init__(self, name, capacity, defense):
+        self.name = name
+        self.capacity = capacity
+        self.defense = defense
+        
+    def print_ShipStatus(self):
+        print("Ship Name     :", self.name)
+        print("Ship Defense  :", self.defense)
+        print("Ship Capacity : ", self.capacity,"\n")
+
+    def getItemQty(self, index):
+        return (self.itemQty[index])
+
+    def getCapacity(self):
+        return (self.capacity)
+        
+    def addItem(self, index, amount2add):
+        retVal = False
+        if (amount2add > self.capacity) :
+            print("Too much!")
+        else :
+            self.itemQty[index] = (self.itemQty[index] + amount2add)
+            self.capacity = (self.capacity - amount2add)
+            retVal = True
+        return retVal
+        
+    def removeItem(self, index, amount2rem):
+        retVal = False
+        if (amount2rem > self.itemQty[index]) :
+            print("Too much!")
+        else :
+            self.itemQty[index] = (self.itemQty[index] - amount2rem)
+            self.capacity = (self.capacity + amount2rem)
+            retVal = True
+        return retVal
+        
+
+
 
 global Company_Name
 global Port_Names               # Constant? 
@@ -11,16 +52,19 @@ global TradedItems_InShip
 global TradedItems_InWarehouse
 global Silver_OnHand
 global Silver_InBank
-global Ship_Capacity
 global Current_Port
-global GameWindow
-
+global Current_Port_Name
 global User_Action
+global Trade_Ship
+global Player_Ship
+
 
 Port_Names = ["Hong Kong", "Batavia", "Calcutta", "Jambi", "Muscat", "Penang", "Rangoon", "Surat"]
 TradedItems_Name = ["Silk", "Tea", "Gunpowder", "Opium"]
 TradedItems_Price = [20, 10, 50, 500]
 Current_Port = 0
+Player_Ship = Ship("My Ship", 15, 1000)
+
 
 
 def Clear_Screen():
@@ -29,7 +73,6 @@ def Clear_Screen():
     
 def Config_Player():
     global Company_Name
-    global Ship_Capacity
     global Silver_OnHand
     global Silver_InBank
     global TradedItems_InShip
@@ -38,112 +81,10 @@ def Config_Player():
     Clear_Screen()
     print("Welcome to the East Empire Trading Simulation!\n")
     Company_Name = input("What shall we use for a company name?\n")
-    Ship_Capacity = 15
     Silver_OnHand = 1000
     Silver_InBank = 0
     TradedItems_InShip = [0, 0, 0, 0]
     TradedItems_InWarehouse = [0, 0, 0, 0]
-
-def Show_Status():
-    global TradedItems_Name
-    global TradedItems_Price
-    global Silver_OnHand
-    global Ship_Capacity
-    global TradedItems_InShip
-
-    def Buy():
-        GameWindow.destroy()
-        Buy_SelectItem()
-
-    GameWindow = Tk()
-    GameWindow.title("Taipan!")
-
-    window_width = 800
-    window_height = 800
-
-# get the screen dimension
-    screen_width = GameWindow.winfo_screenwidth()
-    screen_height = GameWindow.winfo_screenheight()
-
-# find the center point
-    center_x = int(screen_width/2 - window_width / 2)
-    center_y = int(screen_height/2 - window_height / 2)
-
-# set the position of the window to the center of the screen
-    GameWindow.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
-#GameWindow.resizable(False, False)
-
-    GameFrame = ttk.Frame(GameWindow, borderwidth=5, relief="ridge", padding="10")
-    GameFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-
-    GameWindow.columnconfigure(0, weight=1)
-    GameWindow.rowconfigure(0, weight=1)
-
-    Current_Port_Name = StringVar()
-    Current_Port_Name = Port_Names[Current_Port]
-
-    Lbl_Header = ttk.Label(GameFrame, text=("Current Port: " + Current_Port_Name))
-    Lbl_Header.grid(column=1, row=1, columnspan=7, pady=(10,20))
-    Lbl_Header.config(font=("Ariel", 18))
-    Lbl_Header.config(foreground="blue")
-
-    Lbl_Prices = ttk.Label(GameFrame, text="PRICES")
-    Lbl_Prices.grid(column=2, row=2, columnspan=2, sticky=(W))
-    Lbl_Prices.config(font=("Ariel", 16))
-    Lbl_Prices.config(foreground="green")
-    
-    Lbl_InShip = ttk.Label(GameFrame, text="QTY IN SHIP")
-    Lbl_InShip.grid(column=4, row=2, columnspan=2, sticky=(W))
-    Lbl_InShip.config(font=("Ariel", 16))
-    Lbl_InShip.config(foreground="green")
-
-    Lbl_InWhs = ttk.Label(GameFrame, text="QTY IN WAREHOUSE")
-    Lbl_InWhs.grid(column=6, row=2, columnspan=2, sticky=(W))
-    Lbl_InWhs.config(font=("Ariel", 16))
-    Lbl_InWhs.config(foreground="green")
-
-    for i in range(4):
-        Lbl_PrcName = ttk.Label(GameFrame, text=(TradedItems_Name[i]))
-        Lbl_PrcName.grid(column=2, row=(i+3), sticky=(W))
-        Lbl_PrcName.config(font=("Ariel", 14))
-        Lbl_PrcName.config(foreground="green")
-
-    for i in range(4):
-        Lbl_PortPrice = ttk.Label(GameFrame, text=(": " + str(TradedItems_Price[i])))
-        Lbl_PortPrice.grid(column=3, row=(i+3), sticky=(W),padx=(5,99))
-        Lbl_PortPrice.config(font=("Ariel", 14))
-        Lbl_PortPrice.config(foreground="green")
-
-    for i in range(4):
-        Lbl_ShpQtyName = ttk.Label(GameFrame, text=(TradedItems_Name[i]))
-        Lbl_ShpQtyName.grid(column=4, row=(i+3), sticky=(W))
-        Lbl_ShpQtyName.config(font=("Ariel", 14))
-        Lbl_ShpQtyName.config(foreground="green")
-
-    for i in range(4):
-        Lbl_ShpQty = ttk.Label(GameFrame, text=(": " + str(TradedItems_InShip[i])))
-        Lbl_ShpQty.grid(column=5, row=(i+3), sticky=W,padx=(5,99))
-        Lbl_ShpQty.config(font=("Ariel", 14))
-        Lbl_ShpQty.config(foreground="green")
-
-    for i in range(4):
-        Lbl_WhsQtyName = ttk.Label(GameFrame, text=(TradedItems_Name[i]))
-        Lbl_WhsQtyName.grid(column=6, row=(i+3), sticky=W)
-        Lbl_WhsQtyName.config(font=("Ariel", 14))
-        Lbl_WhsQtyName.config(foreground="green")
-
-    for i in range(4):
-        Lbl_WhsQty = ttk.Label(GameFrame, text=(": " + str(TradedItems_InWarehouse[i])))
-        Lbl_WhsQty.grid(column=7, row=(i+3), sticky=W)
-        Lbl_WhsQty.config(font=("Ariel", 14))
-        Lbl_WhsQty.config(foreground="green")
-
-    Btn_Buy = ttk.Button(GameFrame, text="Buy", command=Buy).grid(column=3, row=9, columnspan=2, sticky=W, pady=(20,20))
-    Btn_Sell = ttk.Button(GameFrame, text="Sell", command=Sell_Cargo).grid(column=5, row=9, columnspan=2, sticky=W, pady=(20,20))
-    Btn_Travel = ttk.Button(GameFrame, text="Travel", command=Travel_toPort).grid(column=7, row=9, columnspan=2, sticky=W, pady=(20,20))
-
-    GameWindow.mainloop()
-
 
 
 def Set_Prices():
@@ -158,7 +99,7 @@ def Travel_toPort():
     for i in range(7):
         print(Port_Names[i])
 
-    Port_Desired = input("invalid selection. \nWhere would you like to go? [H,B,C,J,M,P,R,S]")[0].upper()
+    Port_Desired = input("Where would you like to go? [H,B,C,J,M,P,R,S]")[0].upper()
     while (Port_Desired != "H") and (Port_Desired != "B") and (Port_Desired != "C") and (Port_Desired != "J") and (Port_Desired != "M") and (Port_Desired != "P") and (Port_Desired != "R") and (Port_Desired != "S"):
         Port_Desired = input("invalid selection. \nWhere would you like to go? [H,B,C,J,M,P,R,S]")[0].upper()
 
@@ -184,48 +125,48 @@ def Travel_toPort():
 
 
 def Buy_Cargo(tI):
+    global Silver_OnHand
     global TradedItems_Name
     global TradedItems_Price
-    global Silver_OnHand
-    global Ship_Capacity
-    global TradedItems_InShip
+    global Player_Ship
 
     print(f"Buy {TradedItems_Name[tI]}!")
     Can_Buy = Silver_OnHand // TradedItems_Price[tI]
     print(f"You can afford {Can_Buy} {TradedItems_Name[tI]}.")
     Want_Buy = int(input("How much do you want to buy?"))
-    if (Want_Buy > Can_Buy):
-        print("You cannot afford that much!")
-    elif (Want_Buy > Ship_Capacity):
-        print("Your ship cannot hold that much!")
+
+    if (Player_Ship.addItem(tI, Want_Buy) == False):
+        print("Unable to complete the transaction.  Check capacity!")
+        User_Action = input("Press <ENTER> to continue")
     else:
-        Silver_OnHand = (Silver_OnHand - Want_Buy * TradedItems_Price[tI])
-        TradedItems_InShip[tI] = (TradedItems_InShip[tI] + Want_Buy)
+        Silver_OnHand = (Silver_OnHand - (Want_Buy * TradedItems_Price[tI]))
+    
 
 def Sell_Cargo(tI):
     global TradedItems_Name
     global TradedItems_Price
     global Silver_OnHand
-    global Ship_Capacity
     global TradedItems_InShip
+    global Trade_Ship
 
     print(f"Sell {TradedItems_Name[tI]}!")
 
-    Can_Sell = TradedItems_InShip[tI]
+    Can_Sell = Player_Ship.getItemQty(tI)
     print(f"You can sell {Can_Sell} {TradedItems_Name[tI]}.")
     Want_Sell = int(input("How much do you want to sell?"))
-    if (Want_Sell > Can_Sell):
-        print(f"You do not have that much {TradedItems_Name[tI]}!")
+
+    if (Player_Ship.removeItem(tI, Want_Sell) == False):
+        print("Unable to complete the transaction.  Check capacity!")
+        User_Action = input("Press <ENTER> to continue")
     else:
-        Silver_OnHand = (Silver_OnHand + Want_Sell * TradedItems_Price[tI])
-        TradedItems_InShip[tI] = (TradedItems_InShip[tI] - Want_Sell)
+        Silver_OnHand = (Silver_OnHand + (Want_Sell * TradedItems_Price[tI]))
 
 
 def Buy_SelectItem():
     global TradedItems_Name
 
-    Clear_Screen()
-    Show_Status()
+#    Clear_Screen()
+#    Show_Status()
     Cargo_ToBuy = input("What would you like to buy? [S,T,G,O]")[0].upper()
     while (Cargo_ToBuy != "S") and (Cargo_ToBuy != "T") and (Cargo_ToBuy != "G") and (Cargo_ToBuy != "O"):
         Cargo_ToBuy = input("invalid selection. \nWhat would you like to buy? [S,T,G,O]")[0].upper()
@@ -244,8 +185,9 @@ def Buy_SelectItem():
 
 def Sell_SelectItem():
     global TradedItems_Name
-    Clear_Screen()
-    Show_Status()
+
+#    Clear_Screen()
+#    Show_Status()
     Cargo_ToSell = input("What would you like to sell? [S,T,G,O]")[0].upper()
     while (Cargo_ToSell != "S") and (Cargo_ToSell != "T") and (Cargo_ToSell != "G") and (Cargo_ToSell != "O"):
         Cargo_ToSell = input("invalid selection. \nWhat would you like to sell? [S,T,G,O]")[0].upper()
@@ -264,8 +206,8 @@ def Sell_SelectItem():
 
 def HongKong():
 
-    Clear_Screen()
-    Show_Status()
+#    Clear_Screen()
+#    Show_Status()
 
     User_Action = input("Would you like to visit the Money Lender, the Bank, or the Warehouse? [M,B,W]")[0].upper()
 
@@ -287,11 +229,10 @@ def Visit_Bank():
     global TradedItems_Name
     global TradedItems_Price
     global Silver_OnHand
-    global Ship_Capacity
     global TradedItems_InShip
 
-    Clear_Screen()
-    Show_Status()
+#    Clear_Screen()
+#    Show_Status()
 
     User_Action = input("Would you like to Deposit or Withdraw? [D,W]")[0].upper()
 
@@ -304,13 +245,28 @@ def Visit_Bank():
         case "W":
             Visit_Bank()
         case _:
-            print("What?")
+            User_Action = input("invalid selection. \nWould you like to Deposit or Withdraw? [D,W]")[0].upper()
 
 
 
 def Play():
+    global Player_Ship
+
     Clear_Screen()
-    Show_Status()
+    Current_Port_Name = Port_Names[Current_Port]
+
+    print("Welcome to",str(Current_Port_Name+","),Company_Name,"!\n")
+    Player_Ship.print_ShipStatus()
+
+
+    print("Silver on Hand: ", Silver_OnHand)
+    print("Silver in Bank: ", Silver_InBank)
+    print("GOODS        PRICE     QTY IN SHIP     QTY IN WAREHOUSE\n")
+
+    for i in range(4):
+        print((TradedItems_Name[i]).ljust(9," "), ": ", str(TradedItems_Price[i]).ljust(9," "), str(Player_Ship.getItemQty(i)).ljust(15," "), TradedItems_InWarehouse[i])
+    print("\n")
+
     
     User_Action = input("Would you like to Buy, Sell, or Travel to a new port? [B,S,T]")[0].upper()
 
@@ -325,20 +281,21 @@ def Play():
         case "T":
             Travel_toPort()
         case _:
-            print("What?")
-
-    Show_Status()
-
+            User_Action = input("invalid selection. \nWould you like to Buy, Sell, or Travel to a new port? [B,S,T]")[0].upper()
+    
+# End Play()
 
 
 
 def main():
     global Silver_OnHand
+    global Trade_Ship
     
-    Clear_Screen()
+    Trade_Ship = {'shipName':"The Peace Dividend", 'shipCapacity':15, 'shipDefense':1000}
+    
     Config_Player()
-
     Set_Prices()
+    
     while (Silver_OnHand < 10000000):
         Play()
 
