@@ -1,6 +1,35 @@
 import os
 import random
 
+class Money:
+    onHand = 0
+    inBank = 0
+    inDebt = 0
+    
+    def __init__(self, onHand):
+        self.onHand = onHand
+        
+    def NetWorth(self):
+        return((onHand + inBank) - inDebt)
+
+    def print_MoneyStatus(self):
+        print("Gold On Hand :", self.onHand)
+        print("Gold in Bank :", self.inBank)
+        print("Gold in Debt :", self.inDebt,"\n")
+    
+    def SpendMoney(self,gold2spend):
+        retVal = False
+        if (gold2spend > self.onHand):
+            print("Too much!")
+        else : 
+            self.onHand = (self.onHand - gold2spend)
+            retVal = True
+        return(retVal)
+
+    def AddMoney(self,gold2add):
+        self.onHand = (self.onHand + gold2add)
+
+
 class Ship:
 #    itemName = ["Silk", "Tea", "Gunpowder", "Opium"]
     itemQty = [0, 0, 0, 0]
@@ -13,7 +42,7 @@ class Ship:
     def print_ShipStatus(self):
         print("Ship Name     :", self.name)
         print("Ship Defense  :", self.defense)
-        print("Ship Capacity : ", self.capacity,"\n")
+        print("Ship Capacity :", self.capacity,"\n")
 
     def getItemQty(self, index):
         return (self.itemQty[index])
@@ -41,30 +70,25 @@ class Ship:
             retVal = True
         return retVal
         
-
-
-
 global Company_Name
 global Port_Names               # Constant? 
 global TradedItems_Name         # Constant? 
 global TradedItems_Price
 global TradedItems_InShip
 global TradedItems_InWarehouse
-global Silver_OnHand
-global Silver_InBank
 global Current_Port
 global Current_Port_Name
 global User_Action
 global Trade_Ship
 global Player_Ship
-
+global Player_Money
 
 Port_Names = ["Hong Kong", "Batavia", "Calcutta", "Jambi", "Muscat", "Penang", "Rangoon", "Surat"]
 TradedItems_Name = ["Silk", "Tea", "Gunpowder", "Opium"]
 TradedItems_Price = [20, 10, 50, 500]
 Current_Port = 0
-Player_Ship = Ship("My Ship", 15, 1000)
-
+Player_Ship = Ship("The Peace Dividend", 15, 1000)
+Player_Money = Money(1000)
 
 
 def Clear_Screen():
@@ -89,7 +113,7 @@ def Config_Player():
 
 def Set_Prices():
     global TradedItems_Price
-    TradedItems_Price = [random.randrange(5, 45, 1), random.randrange(2, 25, 1), random.randrange(5, 55, 1), random.randrange(300, 999, 1)]
+    TradedItems_Price = [random.randrange(5, 45, 1), random.randrange(2, 25, 1), random.randrange(5, 75, 1), random.randrange(300, 999, 1)]
 
 def Travel_toPort():
     global Current_Port
@@ -125,29 +149,27 @@ def Travel_toPort():
 
 
 def Buy_Cargo(tI):
-    global Silver_OnHand
     global TradedItems_Name
     global TradedItems_Price
-    global Player_Ship
 
     print(f"Buy {TradedItems_Name[tI]}!")
     Can_Buy = Silver_OnHand // TradedItems_Price[tI]
     print(f"You can afford {Can_Buy} {TradedItems_Name[tI]}.")
     Want_Buy = int(input("How much do you want to buy?"))
-
-    if (Player_Ship.addItem(tI, Want_Buy) == False):
-        print("Unable to complete the transaction.  Check capacity!")
+    if (Want_Buy > Can_Buy):
+        print("Unable to complete the transaction.  Insufficient Funds!")
         User_Action = input("Press <ENTER> to continue")
-    else:
-        Silver_OnHand = (Silver_OnHand - (Want_Buy * TradedItems_Price[tI]))
+    else :
+        if (Player_Ship.addItem(tI, Want_Buy) == False):
+            print("Unable to complete the transaction.  Check capacity!")
+            User_Action = input("Press <ENTER> to continue")
+        else :
+            Player_Money.SpendMoney(Want_Buy * TradedItems_Price[tI])
     
 
 def Sell_Cargo(tI):
     global TradedItems_Name
     global TradedItems_Price
-    global Silver_OnHand
-    global TradedItems_InShip
-    global Trade_Ship
 
     print(f"Sell {TradedItems_Name[tI]}!")
 
@@ -159,15 +181,13 @@ def Sell_Cargo(tI):
         print("Unable to complete the transaction.  Check capacity!")
         User_Action = input("Press <ENTER> to continue")
     else:
-        Silver_OnHand = (Silver_OnHand + (Want_Sell * TradedItems_Price[tI]))
+        Player_Money.AddMoney(Want_Sell * TradedItems_Price[tI])
 
 
 def Buy_SelectItem():
     global TradedItems_Name
 
-#    Clear_Screen()
-#    Show_Status()
-    Cargo_ToBuy = input("What would you like to buy? [S,T,G,O]")[0].upper()
+s    Cargo_ToBuy = input("What would you like to buy? [S,T,G,O]")[0].upper()
     while (Cargo_ToBuy != "S") and (Cargo_ToBuy != "T") and (Cargo_ToBuy != "G") and (Cargo_ToBuy != "O"):
         Cargo_ToBuy = input("invalid selection. \nWhat would you like to buy? [S,T,G,O]")[0].upper()
 
@@ -228,7 +248,6 @@ def HongKong():
 def Visit_Bank():
     global TradedItems_Name
     global TradedItems_Price
-    global Silver_OnHand
     global TradedItems_InShip
 
 #    Clear_Screen()
@@ -257,10 +276,8 @@ def Play():
 
     print("Welcome to",str(Current_Port_Name+","),Company_Name,"!\n")
     Player_Ship.print_ShipStatus()
+    Player_Money.print_MoneyStatus()
 
-
-    print("Silver on Hand: ", Silver_OnHand)
-    print("Silver in Bank: ", Silver_InBank)
     print("GOODS        PRICE     QTY IN SHIP     QTY IN WAREHOUSE\n")
 
     for i in range(4):
@@ -288,7 +305,6 @@ def Play():
 
 
 def main():
-    global Silver_OnHand
     global Trade_Ship
     
     Trade_Ship = {'shipName':"The Peace Dividend", 'shipCapacity':15, 'shipDefense':1000}
