@@ -121,8 +121,8 @@ class Ship:
     itemName = ["Silk", "Tea", "Gunpowder", "Opium"]
     itemQty = [0, 0, 0, 0]
     whItemQty = [0, 0, 0, 0]
-    shipMaxDefense = 200
-    shipDefense = 200
+    shipMaxDefense = 500
+    shipDefense = 500
     shipGuns = 5
     shipMaximumCapacity = 25
     shipAvailableCapacity = 25
@@ -132,6 +132,9 @@ class Ship:
     def __init__(self, name):
         self.name = name
     
+    def getDamage(self):
+        return (self.shipMaxDefense-self.shipDefense)
+
     def print_ShipStatus(self):
         print("Ship Name     :", self.name)
         print("Ship Capacity :", self.shipAvailableCapacity, "/", self.shipMaximumCapacity)
@@ -201,7 +204,11 @@ class Ship:
     def damageShip(self,Damage):
         self.shipDefense = (self.shipDefense - Damage)
 
-
+    def repairShip(self,Repair):
+        self.shipDefense = (self.shipDefense + Repair)
+        if (self.shipDefense > self.shipMaxDefense):
+            self.shipDefense = self.shipMaxDefense
+        
 
 
     
@@ -232,37 +239,119 @@ def Config_Player():
     Company_Name = input("What shall we use for a company name?\n")
 
 
+def printPirates(pirateQty):
+
+    line01 ="  _  _                _  _     "
+    line02 ="   \/                ' \/ '    "
+    line03 ="                               "
+    line04 ="       _______                 "
+    line05 ="     /         /______         "
+    line06 ="     |         |     /         "
+    line07 ="     \         \     |         "
+    line08 ="      \_________\    \         "
+    line09 ="\         || \________\        "
+    line10 =" \________||_____||__ ______/  "
+    line11 ="  \|_|_O_|_|_O_|_|_O_|_O_|_/|  "
+    line12 ="   \    _______________    /   "
+    line13 ="^%%^\_'/_)/_)_/_)__)/_)/)_//)/)"
+    line14 ="^!^^^!!^^^%%%%%!!!!^^^%%^%%%^^^"
+
+
+
+
+#    line01 ="                                             _  _  "
+#    line02 ="                                            ' \/ ' "
+#    line03 ="  _  _                                             "
+#    line04 ="   \/              __'__     __'__                 "
+#    line05 ="                / ___!___   ___!___              \/"
+#    line06 ="              // (      (  (      (                "
+#    line07 ="            / /   \______\  \______\               "
+#    line08 ="          /  /   ____!_____ ___!______             "
+#    line09 ="        /   /   /         //         /             "
+#    line10 ="      /    /    |         ||         |             "
+#    line11 ="    /_____/     \         \\         \             "
+#    line12 ="          \      \_________\\_________\            "
+#    line13 ="           \         |          |                  "
+#    line14 ="            \________!__________!___________/      "
+#    line15 ="             \|_|_|_|_|_|_|_|_|_|_|__|_|_|_/|      "
+#    line16 ="              \    _______________         /       "
+#    line17 ="^^%%%^%^^^%^%%^\_'/_)/_)_/_)__)/_)/))_'_'_//)/)/)/)"
+#    line18 ="!!^^'!%%!^^^!^^^!!^^^%%%%%!!!!^^^%%^^^!!%%%%^^^!!^^"
+
+    if (pirateQty > 0):
+
+        pline01 = line01 + line01 + line01
+        pline02 = line02 + line02 + line02
+        pline03 = line03 + line03 + line03
+        pline04 = line04 + line04 + line04
+        pline05 = line05 + line05 + line05
+        pline06 = line06 + line06 + line06
+        pline07 = line07 + line07 + line07
+        pline08 = line08 + line08 + line08
+        pline09 = line09 + line09 + line09
+        pline10 = line10 + line10 + line10
+        pline11 = line11 + line11 + line11
+        pline12 = line12 + line12 + line12
+        pline13 = line13 + line13 + line13
+        pline14 = line14 + line14 + line14
+ 
+    print(f"{cr.Back.BLUE}"+pline01)
+    print(f"{cr.Back.BLUE}"+pline02)
+    print(pline03)
+    print(pline04)
+    print(pline05)
+    print(pline06)
+    print(pline07)
+    print(pline08)
+    print(pline09)
+    print(pline10)
+    print(f"{cr.Fore.YELLOW}"+pline11)
+    print(f"{cr.Fore.YELLOW}"+pline12)
+    print(f"{cr.Fore.BLUE}"+pline13)
+    print(f"{cr.Fore.BLUE}"+pline14)
+    
 
 def Ship_UnderAttack():
 
     underAttack = True
-    shipCount = random.randrange(1, 10, 1)
-
+    pirateCount = random.randrange(1, 20, 1)
     while (underAttack):
-        print("We are under attack by ", shipCount, "ships!")
-        print(f"{cr.Fore.WHITE}Shall we {cr.Fore.GREEN}F{cr.Fore.WHITE}ight or {cr.Fore.GREEN}R{cr.Fore.WHITE}un?\n")
+        Clear_Screen()
+        Player_Ship.print_ShipStatus()
+        Player_Money.print_MoneyStatus()
+        printPirates(pirateCount)
+        print("We are under attack by", pirateCount, "ships!")
+        print(f"{cr.Fore.WHITE}Shall we {cr.Fore.GREEN}F{cr.Fore.WHITE}ight or {cr.Fore.GREEN}R{cr.Fore.WHITE}un?")
         Fight = input("[F,R]")[0].upper()
-        while (Fight not in "FR"):
-            print(f"{cr.Fore.YELLOW}Invalid Selection!\n{cr.Fore.WHITE}We're under attack.  Shall we {cr.Fore.GREEN}F{cr.Fore.WHITE}ight or {cr.Fore.GREEN}R{cr.Fore.WHITE}un?\n")
-            Fight = input("[F,R]")[0].upper()
+        while (Fight != "F") and (Fight != "R"):
+            print(f"{cr.Fore.YELLOW}Invalid Selection!\n{cr.Fore.WHITE}We're under attack.  Shall we {cr.Fore.GREEN}F{cr.Fore.WHITE}ight or {cr.Fore.GREEN}R{cr.Fore.WHITE}un?")
+            Fight = input("[F,R]")[0]
+
+        shipDamage = int(random.randrange(1, 25, 1))
+        Player_Ship.damageShip(int(random.randrange(1, 25, 1)))
+        print("We have sustained", shipDamage, "damage to our defense.")
 
         if (Fight == "F"):
             shipsSunk = int(random.randrange(1, 4, 1))
-            shipCount = shipCount - shipsSunk
-            shipDamage = int(random.randrange(1, 25, 1))
-            Player_Ship.damageShip(int(random.randrange(1, 25, 1)))
-            if (shipCount < 1):
+            pirateCount = pirateCount - shipsSunk
+            if (pirateCount < 1):
                 print(f"{cr.Fore.WHITE}We have sunk all attacking ships!")
                 underAttack = False
             else :
                 print(f"{cr.Fore.WHITE}We have sunk ", shipsSunk, "ships!")
+                User_Action = input("Press <ENTER> to continue")
         else :
             outRun = random.randrange(1, 4, 1)
-            if (outRun == shipCount):
-                shipDamage = int(random.randrange(1, 20, 1))
+            shipDamage = int(random.randrange(1, 20, 1))
+            print("We have sustained", shipDamage, "damage to our defense.")
+            if (outRun >= pirateCount):
                 underAttack = False
                 print(f"{cr.Fore.WHITE}We have escaped!")
+            else :
+                print("We have outrun", outRun, "ships!")
+            
         
+    User_Action = input("Press <ENTER> to continue")
     
     
 
@@ -294,7 +383,7 @@ def Travel_toPort():
             Player_Port.setPort(7)
 
     Attack = random.randrange(1, 10, 1)
-    if (Attack == 6):
+    if (Attack > 4):
         Ship_UnderAttack()
 
 def Buy_Cargo(bIndex):
@@ -500,6 +589,34 @@ def Use_Warehouse():
             Retrieve_SelectItem()
 
 
+def Repair_Ship():
+    repAmount = 0
+    damAmount = 0
+    repCost = 0
+    
+    damAmount = Player_Ship.getDamage()
+    repCost = (damAmount * 20)
+
+    Full_Repair = Player_Money.GetCashOnHand() // repCost
+    
+    print("Repairing a ship costs 20 gold per damage point.")
+    print("Your ship has "+str(damAmount)+" damage points.")
+    print("It will cost "+str(repCost)+" to fully repair your ship.")
+    Want_Repair = int(input("How much DAMAGE do you want to repair?"))
+
+    if ((Want_Repair * 100) > Player_Money.GetCashOnHand()):
+        print("Unable to complete the transaction.  Insufficient Funds!")
+        User_Action = input("Press <ENTER> to continue")
+    else :
+        if (Want_Repair > Player_Ship.getDamage()):
+            print("Unable to complete the transaction.  Check damage!")
+            User_Action = input("Press <ENTER> to continue")
+        else :
+            Player_Money.SpendMoney(Want_Repair * 20)
+            Player_Ship.repairShip(Want_Repair)
+   
+
+
 def Play():
 
     Clear_Screen()
@@ -517,15 +634,16 @@ def Play():
 
     print("\n")
     if (Player_Port.getPort() == 0):
-        print(f"{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, {cr.Fore.GREEN}V{cr.Fore.WHITE}isit the Bank, use the {cr.Fore.GREEN}W{cr.Fore.WHITE}arehouse or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
-        User_Action = input("[B,S,V,W,T]")
+
+        print(f"{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, {cr.Fore.GREEN}V{cr.Fore.WHITE}isit the Bank, use the {cr.Fore.GREEN}W{cr.Fore.WHITE}arehouse, {cr.Fore.GREEN}R{cr.Fore.WHITE}epair your ship, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
+        User_Action = input("[B,S,V,W,R,T]")
     
         if (len(User_Action) > 0) :
             User_Action = User_Action.upper()
 
-        while (User_Action not in "BSVWT"):
-            print(f"{cr.Fore.YELLOW}Invalid Selection! \n{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, {cr.Fore.GREEN}V{cr.Fore.WHITE}isit the Bank, use the {cr.Fore.GREEN}W{cr.Fore.WHITE}arehouse or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
-            User_Action = input("[B,S,V,W,T]")[0].upper()
+        while (User_Action != "B") and (User_Action != "S") and (User_Action != "V") and (User_Action != "W") and (User_Action != "R") and (User_Action != "T"):
+            print(f"{cr.Fore.YELLOW}Invalid Selection! \n{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, {cr.Fore.GREEN}V{cr.Fore.WHITE}isit the Bank, use the {cr.Fore.GREEN}W{cr.Fore.WHITE}arehouse, {cr.Fore.GREEN}R{cr.Fore.WHITE}epair your ship, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
+            User_Action = input("[B,S,V,W,R,T]")[0].upper()
     
         match User_Action:
             case "B":
@@ -536,11 +654,12 @@ def Play():
                 Visit_Bank()
             case "W":
                 Use_Warehouse()
+            case "R":
+                Repair_Ship()
             case "T":
                 Travel_toPort()
             case _:
                 User_Action = input("Press <ENTER> to continue")
-
     
     else:
         print(f"Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
