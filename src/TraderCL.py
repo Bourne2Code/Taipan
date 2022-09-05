@@ -5,20 +5,33 @@ import random
 import colorama as cr
 cr.init(autoreset=True)
 
-class TradePort:
-    portNames = ["Hong Kong", "Batavia", "Calcutta", "Jambi", "Muscat", "Penang", "Rangoon", "Surat"]
-    portIndex = 0
+class tradeItemList:
+# lists = index 0 - 3
     itemName = ["Silk", "Tea", "Gunpowder", "Opium"]
     itemPrice = [0, 0, 0, 0]
 
     def __init__(self):
+        self.SetPrices()
+
+    def SetPrices(self):
+        self.itemPrice = [random.randrange(5, 45, 1), random.randrange(2, 25, 1), random.randrange(5, 75, 1), random.randrange(300, 999, 1)]
+
+    def GetItemPrice(self,index):
+        return(self.itemPrice[index])
+
+    def GetItemName(self,index):
+        return(self.itemName[index])
+
+class tradePort:
+    portNames = ["Hong Kong", "Batavia", "Calcutta", "Jambi", "Muscat", "Penang", "Rangoon", "Surat"]
+    portIndex = 0
+
+    def __init__(self):
         self.portIndex = 0
-        self.setPrices()
         
     def setPort(self, newIndex):
         if (self.portIndex != newIndex):
             self.portIndex = newIndex
-            self.setPrices()
     
     def getPort(self):
         return(self.portIndex)
@@ -26,17 +39,27 @@ class TradePort:
     def getPortName(self):
         return(self.portNames[self.portIndex])
         
-    def print_PortNameList(self):
-        print(*self.portNames,sep=", ")
+    def getPortNameList(self):
+        portNames = ""
+        needComma = False
+        for i in range(len(self.portNames)):
+            if (i != self.portIndex):
+                if (needComma == True):
+                    portNames = portNames + ", "
+                portNames = portNames + self.portNames[i]
+                needComma = True
+        return(portNames)
 
-    def setPrices(self):
-        self.itemPrice = [random.randrange(5, 45, 1), random.randrange(2, 25, 1), random.randrange(5, 75, 1), random.randrange(300, 999, 1)]
-
-    def getItemPrice(self,getIndex):
-        return(self.itemPrice[getIndex])
-
-    def getItemName(self,getIndex):
-        return(self.itemName[getIndex])
+    def getPortCharList(self):
+        portChars = ""
+        needComma = False
+        for i in range(len(self.portNames)):
+            if (i != self.portIndex):
+                if (needComma == True):
+                    portChars = portChars + ","
+                portChars = portChars + self.portNames[i][0]
+                needComma = True
+        return(portChars)
 
 
 class Money:
@@ -117,6 +140,35 @@ class Money:
         return(retVal)
 
 
+class Warehouse:
+    whseItemName = ["Silk", "Tea", "Gunpowder", "Opium"]
+    whseItemQty = [0, 0, 0, 0]
+    whseMaxCapacity = 1000
+
+    def __init__(self, name):
+        self.name = name
+
+    def GetCurrentCapacity(self):
+        return (self.whseMaxCapacity - self.whseItemQty[0] - self.whseItemQty[1] - self.whseItemQty[2] - self.whseItemQty[3])
+
+    def GetItemQty(self, index):
+        return(self.whseItemQty[index])
+
+    def StoreItem(self, index, qty2Store):
+        retVal = False
+        if (qty2Store <= self.GetCurrentCapacity()) :
+            self.whseItemQty[index] = (self.whseItemQty[index] + qty2Store)
+            retVal = True
+        return (retVal)
+
+    def RetrieveItem(self, index, qty2Retrieve):
+        retVal = False
+        if (qty2Retrieve <= self.whseItemQty[index]) :
+            self.whseItemQty[index] = (self.whseItemQty[index] - qty2Retrieve)
+            retVal = True
+        return retVal
+
+
 class Ship:
     itemName = ["Silk", "Tea", "Gunpowder", "Opium"]
     itemQty = [0, 0, 0, 0]
@@ -126,18 +178,25 @@ class Ship:
     shipGuns = 5
     shipMaximumCapacity = 25
     shipAvailableCapacity = 25
-    whouseMaximumCapacity = 1000
-    whouseAvailableCapacity = 1000
     
     def __init__(self, name):
         self.name = name
+    
+    def getShipName(self):
+        return (self.name)
+        
+    def getShipDefense(self):
+        return (self.shipDefense)
+
+    def getShipMaxDefense(self):
+        return (self.shipMaxDefense)
     
     def getDamage(self):
         return (self.shipMaxDefense-self.shipDefense)
 
     def print_ShipStatus(self):
         print("Ship Name     :", self.name)
-        print("Ship Capacity :", self.shipAvailableCapacity, "/", self.shipMaximumCapacity)
+        print("Ship Capacity :", self.getShipCurrentCapacity(), "/", self.shipMaximumCapacity)
         print("Ship Defense  :", self.shipDefense, "/", self.shipMaxDefense)
 #        print("Ship Status   :", self.shipStatus)
         print("Warehouse Cap.:", self.whouseAvailableCapacity, "/", self.whouseMaximumCapacity,"\n")
@@ -151,19 +210,21 @@ class Ship:
     def getItemName(self,index):
         return(self.itemName[index])
 
-    def getAvailableCapacity(self):
-        return (self.shipAvailableCapacity)
+    def getShipMaxCapacity(self):
+        return(self.shipMaximumCapacity)
+
+    def getShipCurrentCapacity(self):
+        return(self.shipMaximumCapacity - self.itemQty[0] - self.itemQty[1] - self.itemQty[2] - self.itemQty[3])
     
     def setCapacity(self,newCap):
         self.shipMaximumCapacity = newCap
     
     def addItem(self, index, amount2add):
         retVal = False
-        if (amount2add > self.shipAvailableCapacity) :
+        if (amount2add > self.getShipCurrentCapacity()) :
             print("Too much!")
         else :
             self.itemQty[index] = (self.itemQty[index] + amount2add)
-            self.shipAvailableCapacity = (self.shipAvailableCapacity - amount2add)
             retVal = True
         return retVal
     
@@ -173,31 +234,6 @@ class Ship:
             print("Too much!")
         else :
             self.itemQty[index] = (self.itemQty[index] - amount2rem)
-            self.shipAvailableCapacity = (self.shipAvailableCapacity + amount2rem)
-            retVal = True
-        return retVal
-
-    def storeItem(self, index, amount2store):
-        retVal = False
-        if (amount2store > self.itemQty[index]) or (amount2store > self.whouseAvailableCapacity) :
-            print("Too much!")
-        else :
-            self.itemQty[index] = (self.itemQty[index] - amount2store)
-            self.whItemQty[index] = (self.whItemQty[index] + amount2store)
-            self.shipAvailableCapacity = (self.shipAvailableCapacity + amount2store)
-            self.whouseAvailableCapacity = (self.whouseAvailableCapacity - amount2store)
-            retVal = True
-        return retVal
-
-    def retrieveItem(self, index, amount2retrieve):
-        retVal = False
-        if (amount2retrieve > self.whItemQty[index]) or (amount2retrieve > self.shipAvailableCapacity) :
-            print("Too much!")
-        else :
-            self.itemQty[index] = (self.itemQty[index] + amount2retrieve)
-            self.whItemQty[index] = (self.whItemQty[index] - amount2retrieve)
-            self.shipAvailableCapacity = (self.shipAvailableCapacity - amount2retrieve)
-            self.whouseAvailableCapacity = (self.whouseAvailableCapacity + amount2retrieve)
             retVal = True
         return retVal
 
@@ -209,14 +245,14 @@ class Ship:
         if (self.shipDefense > self.shipMaxDefense):
             self.shipDefense = self.shipMaxDefense
         
-
-
     
 global Company_Name
 global User_Action
+global Game_Items
+global Game_Port
 global Player_Ship
 global Player_Money
-global Player_Port
+global Player_WHouse
 
 
 
@@ -226,171 +262,184 @@ def Clear_Screen():
     
 def Config_Player():
     global Company_Name
+    global Game_Items
+    global Game_Port
     global Player_Ship
     global Player_Money
-    global Player_Port
+    global Player_WHouse
 
     Clear_Screen()
-    Player_Port = TradePort()
+    
+    Game_Items = tradeItemList()
+    
+    Game_Port = tradePort()
     Player_Ship = Ship("The Peace Dividend")
     Player_Money = Money(1000)
+    Player_WHouse = Warehouse("My Warehouse")
 
     print("Welcome to the East Empire Trading Simulation!\n")
     Company_Name = input("What shall we use for a company name?\n")
 
 
-def printPirates(pirateQty):
+def Print_PirateShips(pirateQty):
 
-    line01 ="  _  _                _  _     "
-    line02 ="   \/                ' \/ '    "
-    line03 ="                               "
-    line04 ="       _______                 "
-    line05 ="     /         /______         "
-    line06 ="     |         |     /         "
-    line07 ="     \         \     |         "
-    line08 ="      \_________\    \         "
-    line09 ="\         || \________\        "
-    line10 =" \________||_____||__ ______/  "
-    line11 ="  \|_|_O_|_|_O_|_|_O_|_O_|_/|  "
-    line12 ="   \    _______________    /   "
-    line13 ="^%%^\_'/_)/_)_/_)__)/_)/)_//)/)"
-    line14 ="^!^^^!!^^^%%%%%!!!!^^^%%^%%%^^^"
+    line01 ="  _  _                  "
+    line02 ="   \/      ]▓▓▓         "
+    line03 ="       ____|_____       "
+    line04 ="     /           /      "
+    line05 ="     |           |      "
+    line06 ="     \           \      "
+    line07 ="      \___________\     "
+    line08 ="  \ _______||__________ "
+    line09 ="   \|_|_O_|_|_O_|_|_O_| "
+    line10 ="^^%%\_,,_.,.  ,, ..,/   "
+    line11 ="%^!^^^!!^^^%%%%%!!!!^^^%"
 
 
+    pline01 = line01 
+    pline02 = line02 
+    pline03 = line03 
+    pline04 = line04 
+    pline05 = line05 
+    pline06 = line06 
+    pline07 = line07 
+    pline08 = line08 
+    pline09 = line09 
+    pline10 = line10 
+    pline11 = line11 
 
 
-#    line01 ="                                             _  _  "
-#    line02 ="                                            ' \/ ' "
-#    line03 ="  _  _                                             "
-#    line04 ="   \/              __'__     __'__                 "
-#    line05 ="                / ___!___   ___!___              \/"
-#    line06 ="              // (      (  (      (                "
-#    line07 ="            / /   \______\  \______\               "
-#    line08 ="          /  /   ____!_____ ___!______             "
-#    line09 ="        /   /   /         //         /             "
-#    line10 ="      /    /    |         ||         |             "
-#    line11 ="    /_____/     \         \\         \             "
-#    line12 ="          \      \_________\\_________\            "
-#    line13 ="           \         |          |                  "
-#    line14 ="            \________!__________!___________/      "
-#    line15 ="             \|_|_|_|_|_|_|_|_|_|_|__|_|_|_/|      "
-#    line16 ="              \    _______________         /       "
-#    line17 ="^^%%%^%^^^%^%%^\_'/_)/_)_/_)__)/_)/))_'_'_//)/)/)/)"
-#    line18 ="!!^^'!%%!^^^!^^^!!^^^%%%%%!!!!^^^%%^^^!!%%%%^^^!!^^"
+    if (pirateQty > 1):
 
-    if (pirateQty > 0):
+        pline01 = pline01 + line01
+        pline02 = pline02 + line02
+        pline03 = pline03 + line03
+        pline04 = pline04 + line04
+        pline05 = pline05 + line05
+        pline06 = pline06 + line06
+        pline07 = pline07 + line07
+        pline08 = pline08 + line08
+        pline09 = pline09 + line09
+        pline10 = pline10 + line10
+        pline11 = pline11 + line11
 
-        pline01 = line01 + line01 + line01
-        pline02 = line02 + line02 + line02
-        pline03 = line03 + line03 + line03
-        pline04 = line04 + line04 + line04
-        pline05 = line05 + line05 + line05
-        pline06 = line06 + line06 + line06
-        pline07 = line07 + line07 + line07
-        pline08 = line08 + line08 + line08
-        pline09 = line09 + line09 + line09
-        pline10 = line10 + line10 + line10
-        pline11 = line11 + line11 + line11
-        pline12 = line12 + line12 + line12
-        pline13 = line13 + line13 + line13
-        pline14 = line14 + line14 + line14
+    if (pirateQty > 2):
+
+        pline01 = pline01 + line01
+        pline02 = pline02 + line02
+        pline03 = pline03 + line03
+        pline04 = pline04 + line04
+        pline05 = pline05 + line05
+        pline06 = pline06 + line06
+        pline07 = pline07 + line07
+        pline08 = pline08 + line08
+        pline09 = pline09 + line09
+        pline10 = pline10 + line10
+        pline11 = pline11 + line11
  
-    print(f"{cr.Back.BLUE}"+pline01)
-    print(f"{cr.Back.BLUE}"+pline02)
+    print(pline01)
+    print(pline02)
     print(pline03)
     print(pline04)
     print(pline05)
     print(pline06)
     print(pline07)
-    print(pline08)
-    print(pline09)
-    print(pline10)
-    print(f"{cr.Fore.YELLOW}"+pline11)
-    print(f"{cr.Fore.YELLOW}"+pline12)
-    print(f"{cr.Fore.BLUE}"+pline13)
-    print(f"{cr.Fore.BLUE}"+pline14)
+    print(f"{cr.Fore.YELLOW}"+pline08)
+    print(f"{cr.Fore.YELLOW}"+pline09)
+    print(f"{cr.Fore.BLUE}"+pline10)
+    print(f"{cr.Fore.BLUE}"+pline11)
     
 
 def Ship_UnderAttack():
 
     underAttack = True
-    pirateCount = random.randrange(1, 20, 1)
+    piratesInitial = random.randrange(1, 15, 1)
+    piratesLeft = piratesInitial   # use piratesInitial to calculate the flotsam and jetsam.  more ships = greater reward
     while (underAttack):
         Clear_Screen()
+        shipDamage = int(random.randrange(1, 15, 1))
+        Player_Ship.damageShip(shipDamage)
         Player_Ship.print_ShipStatus()
         Player_Money.print_MoneyStatus()
-        printPirates(pirateCount)
-        print("We are under attack by", pirateCount, "ships!")
+        Print_PirateShips(piratesLeft)
+
+        print("We are under attack by", piratesLeft, "ships!")
+        print("We have sustained", shipDamage, "damage to our defense.")
         print(f"{cr.Fore.WHITE}Shall we {cr.Fore.GREEN}F{cr.Fore.WHITE}ight or {cr.Fore.GREEN}R{cr.Fore.WHITE}un?")
         Fight = input("[F,R]")[0].upper()
         while (Fight != "F") and (Fight != "R"):
             print(f"{cr.Fore.YELLOW}Invalid Selection!\n{cr.Fore.WHITE}We're under attack.  Shall we {cr.Fore.GREEN}F{cr.Fore.WHITE}ight or {cr.Fore.GREEN}R{cr.Fore.WHITE}un?")
             Fight = input("[F,R]")[0]
 
-        shipDamage = int(random.randrange(1, 25, 1))
-        Player_Ship.damageShip(int(random.randrange(1, 25, 1)))
-        print("We have sustained", shipDamage, "damage to our defense.")
-
         if (Fight == "F"):
             shipsSunk = int(random.randrange(1, 4, 1))
-            pirateCount = pirateCount - shipsSunk
-            if (pirateCount < 1):
-                print(f"{cr.Fore.WHITE}We have sunk all attacking ships!")
+            piratesLeft = piratesLeft - shipsSunk
+            if (piratesLeft < 1):
+                print(f"{cr.Fore.WHITE}Victory!  We have sunk all attacking ships!")
+                FlotsamQty = int(random.randrange(1, piratesInitial, 1))
+                FlotsamItem = int(random.randrange(1, 4, 1))
+                print("We have recovered some flotsam and jetsam.",FlotsamQty, "of",Player_Ship.getItemName(FlotsamItem))
+                if (FlotsamQty > Player_Ship.shipAvailableCapacity):
+                    FlotsamQty = Player_Ship.shipAvailableCapacity
+                Player_Ship.addItem(FlotsamItem,FlotsamQty)
                 underAttack = False
             else :
                 print(f"{cr.Fore.WHITE}We have sunk ", shipsSunk, "ships!")
-                User_Action = input("Press <ENTER> to continue")
         else :
             outRun = random.randrange(1, 4, 1)
-            shipDamage = int(random.randrange(1, 20, 1))
-            print("We have sustained", shipDamage, "damage to our defense.")
-            if (outRun >= pirateCount):
+            if (outRun >= piratesLeft):
                 underAttack = False
                 print(f"{cr.Fore.WHITE}We have escaped!")
             else :
                 print("We have outrun", outRun, "ships!")
-            
+                piratesLeft = (piratesLeft - outRun)
         
-    User_Action = input("Press <ENTER> to continue")
-    
+        continueGame = input("Press <ENTER> to continue")
     
 
 def Travel_toPort():
 
     Port_Desired = ""
-
-    Player_Port.print_PortNameList()
-    Port_Desired = input("Where would you like to go? [H,B,C,J,M,P,R,S]")
-    if (len(Port_Desired) > 0) :
-        Port_Desired = Port_Desired.upper()
+    print(Game_Port.getPortNameList())
+    
+    while (Port_Desired != "H") and (Port_Desired != "B") and (Port_Desired != "C") and (Port_Desired != "J") and (Port_Desired != "M") and (Port_Desired != "P") and (Port_Desired != "R") and (Port_Desired != "S"):
+        Port_Desired = input("Where would you like to go? ["+Game_Port.getPortCharList()+"]")
+        if (len(Port_Desired) > 0) :
+            Port_Desired = Port_Desired[0].upper()
 
     match Port_Desired:
         case "H":
-            Player_Port.setPort(0)
+            newGamePort = 0
         case "B":
-            Player_Port.setPort(1)
+            newGamePort = 1
         case "C":
-            Player_Port.setPort(2)
+            newGamePort = 2
         case "J":
-            Player_Port.setPort(3)
+            newGamePort = 3
         case "M":
-            Player_Port.setPort(4)
+            newGamePort = 4
         case "P":
-            Player_Port.setPort(5)
+            newGamePort = 5
         case "R":
-            Player_Port.setPort(6)
+            newGamePort = 6
         case "S":
-            Player_Port.setPort(7)
-
-    Attack = random.randrange(1, 10, 1)
-    if (Attack > 4):
-        Ship_UnderAttack()
+            newGamePort = 7
+            
+    if (newGamePort == Game_Port.getPort()):
+        print("We're already there!")
+        User_Action = input("Press <ENTER> to continue")
+    else :
+        Game_Items.SetPrices()
+        Game_Port.setPort(newGamePort)
+        Attack = random.randrange(1, 10, 1)
+        if (Attack > 6):
+            Ship_UnderAttack()
 
 def Buy_Cargo(bIndex):
 
-    print(f"Buy {Player_Port.getItemName(bIndex)}!")
-    Can_Buy = Player_Money.GetCashOnHand() // Player_Port.getItemPrice(bIndex)
-    print(f"You can afford {Can_Buy} {Player_Port.getItemName(bIndex)}.")
+    print(f"Buy {Game_Items.GetItemName(bIndex)}!")
+    Can_Buy = (Player_Money.GetCashOnHand() // Game_Items.GetItemPrice(bIndex))
+    print(f"You can afford {Can_Buy} {Game_Items.GetItemName(bIndex)}.")
     Want_Buy = int(input("How much do you want to buy?"))
     if (Want_Buy > Can_Buy):
         print("Unable to complete the transaction.  Insufficient Funds!")
@@ -400,30 +449,31 @@ def Buy_Cargo(bIndex):
             print("Unable to complete the transaction.  Check capacity!")
             User_Action = input("Press <ENTER> to continue")
         else :
-            Player_Money.SpendMoney(Want_Buy * Player_Port.getItemPrice(bIndex))
+            Player_Money.SpendMoney(Want_Buy * Game_Items.GetItemPrice(bIndex))
     
 
 def Sell_Cargo(sIndex):
 
-    print(f"Sell {Player_Port.getItemName(sIndex)}!")
-
-    Can_Sell = Player_Ship.getItemQty(sIndex)
-    print(f"You can sell {Can_Sell} {Player_Port.getItemName(sIndex)}.")
+    print(f"Sell {Game_Items.GetItemName(sIndex)}!")
+    print(f"You have {Player_Ship.getItemQty(sIndex)} of {Game_Items.GetItemName(sIndex)} to sell.")
     Want_Sell = int(input("How much do you want to sell?"))
 
     if (Player_Ship.removeItem(sIndex, Want_Sell) == False):
         print("Unable to complete the transaction.  Check capacity!")
         User_Action = input("Press <ENTER> to continue")
     else:
-        Player_Money.AddMoney(Want_Sell * Player_Port.getItemPrice(sIndex))
+        Player_Money.AddMoney(Want_Sell * Game_Items.GetItemPrice(sIndex))
 
 
 def Buy_SelectItem():
 
-    print(f"Would you like to buy {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
-    Cargo_ToBuy = input("[S,T,G,O]")
-    if (len(Cargo_ToBuy) > 0) :
-        Cargo_ToBuy = Cargo_ToBuy.upper()
+    Cargo_ToBuy = ""
+    
+    while (Cargo_ToBuy != "S") and (Cargo_ToBuy != "T") and (Cargo_ToBuy != "G") and (Cargo_ToBuy != "O"):
+        print(f"Would you like to buy {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
+        Cargo_ToBuy = input("[S,T,G,O]")
+        if (len(Cargo_ToBuy) > 0) :
+            Cargo_ToBuy = Cargo_ToBuy[0].upper()
 
     match Cargo_ToBuy:
         case "S":
@@ -434,20 +484,16 @@ def Buy_SelectItem():
             Buy_Cargo(2)
         case "O":
             Buy_Cargo(3)
-        case _:
-            print(f"{cr.Fore.YELLOW}Invalid Selection! Press <ENTER> to continue")
-            User_Action = input("")
 
 def Sell_SelectItem():
 
-    print(f"Would you like to sell {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
-    Cargo_ToSell = input("[S,T,G,O]")
-    if (len(Cargo_ToSell) > 0) :
-        Cargo_ToSell = Cargo_ToSell.upper()
+    Cargo_ToSell = ""
 
     while (Cargo_ToSell != "S") and (Cargo_ToSell != "T") and (Cargo_ToSell != "G") and (Cargo_ToSell != "O"):
-        print(f"{cr.Fore.YELLOW}Invalid Selection! \n{cr.Fore.WHITE}Would you like to sell {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")[0].upper()
-        Cargo_ToSell = input("[S,T,G,O]")[0].upper()
+        print(f"Would you like to sell {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
+        Cargo_ToSell = input("[S,T,G,O]")
+        if (len(Cargo_ToSell) > 0) :
+            Cargo_ToSell = Cargo_ToSell[0].upper()
 
     match Cargo_ToSell:
         case "S":
@@ -458,71 +504,81 @@ def Sell_SelectItem():
             Sell_Cargo(2)
         case "O":
             Sell_Cargo(3)
-        case _:
-            User_Action = input("Press <ENTER> to continue")
 
 
 def Visit_Bank():
-    x_Amount = 0
+    Bank_Amount = 0
+    Bank_Action = ""
 
-    print(f"Would you like to {cr.Fore.GREEN}D{cr.Fore.WHITE}eposit, {cr.Fore.GREEN}W{cr.Fore.WHITE}ithdraw, {cr.Fore.GREEN}B{cr.Fore.WHITE}orrow or {cr.Fore.GREEN}R{cr.Fore.WHITE}epay?")
-    Bank_Action = input("[D,W,B,R]")
-    if (len(Bank_Action) > 0) :
-        Bank_Action = Bank_Action.upper()
-
-    while (Bank_Action not in "DWBR"):
-        print(f"{cr.Fore.YELLOW}Invalid Selection! \n{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}D{cr.Fore.WHITE}eposit, {cr.Fore.GREEN}W{cr.Fore.WHITE}ithdraw, {cr.Fore.GREEN}B{cr.Fore.WHITE}orrow or {cr.Fore.GREEN}R{cr.Fore.WHITE}epay?")[0].upper()
-        Bank_Action = input("[D,W,B,R]")[0].upper()
+    while (Bank_Action != "D") and (Bank_Action != "W") and (Bank_Action != "B") and (Bank_Action != "R") :
+        print(f"Would you like to {cr.Fore.GREEN}D{cr.Fore.WHITE}eposit, {cr.Fore.GREEN}W{cr.Fore.WHITE}ithdraw, {cr.Fore.GREEN}B{cr.Fore.WHITE}orrow or {cr.Fore.GREEN}R{cr.Fore.WHITE}epay?")
+        Bank_Action = input("[D,W,B,R]")
+        if (len(Bank_Action) > 0) :
+            Bank_Action = Bank_Action[0].upper()
 
     match Bank_Action:
         case "D":
-            x_Amount = int(input("How much would you like to deposit?"))
-            if (Player_Money.DepositMoney(x_Amount) == False):
+            Bank_Amount = int(input("How much would you like to deposit?"))
+            if (Player_Money.DepositMoney(Bank_Amount) == False):
                 print("Unable to complete the transaction.  Check cash on hand!")
                 Bank_Action = input("Press <ENTER> to continue")
 
         case "W":
-            x_Amount = int(input("How much would you like to withdraw?"))
-            if (Player_Money.WithdrawMoney(x_Amount) == False):
+            Bank_Amount = int(input("How much would you like to withdraw?"))
+            if (Player_Money.WithdrawMoney(Bank_Amount) == False):
                 print("Unable to complete the transaction.  Check cash in bank!")
                 Bank_Action = input("Press <ENTER> to continue")
 
         case "B":
-            x_Amount = int(input("How much would you like to borrow?"))
-            if (Player_Money.BorrowMoney(x_Amount) == False):
+            Bank_Amount = int(input("How much would you like to borrow?"))
+            if (Player_Money.BorrowMoney(Bank_Amount) == False):
                 print("Unable to complete the transaction.  1000 Max!")
                 Bank_Action = input("Press <ENTER> to continue")
 
         case "R":
-            x_Amount = int(input("How much would you like to repay?"))
-            if (Player_Money.RepayMoney(x_Amount) == False):
+            Bank_Amount = int(input("How much would you like to repay?"))
+            if (Player_Money.RepayMoney(Bank_Amount) == False):
                 print("Unable to complete the transaction.  Check cash on hand!")
                 Bank_Action = input("Press <ENTER> to continue")
 
 
 def Store_Cargo(sIndex):
 
-    Can_Store = Player_Ship.getItemQty(sIndex)
-    print(f"You can store {Can_Store} {Player_Ship.getItemName(sIndex)}.")
-    Want_Store = int(input("How much do you want to store?"))
+    onShip = int(Player_Ship.getItemQty(sIndex))
+    WarehouseSpace = Player_WHouse.GetCurrentCapacity()
+    
+    if (onShip > WarehouseSpace):
+        Can_Store = WarehouseSpace
+    else:
+        Can_Store = onShip
 
-    print(f"Store {Player_Ship.getItemName(sIndex)}!")
+    qty2Store = Can_Store + 1
+    while (qty2Store > Can_Store):
+        print("You can store", Can_Store, Game_Items.GetItemName(sIndex),".")
+        qty2Store = int(input("How much do you want to store?"))
 
-    if (Player_Ship.storeItem(sIndex, Want_Store) == False):
-        print("Unable to complete the transaction.  Check cargo!")
+    print(f"Store {Game_Items.GetItemName(sIndex)}!")
+
+    if (Player_WHouse.StoreItem(sIndex,qty2Store) == False):
+        print("Unable to complete the transaction.  Check Warehouse capacity!")
         User_Action = input("Press <ENTER> to continue")
+    else:
+        if (Player_Ship.removeItem(sIndex,qty2Store) == False):
+            print("Unable to complete the transaction.  Check Ship cargo availability!")
+            User_Action = input("Press <ENTER> to continue")
+
+    print("Stored", qty2Store,Game_Items.GetItemName(sIndex))
+    continueGame = input("Press <ENTER> to continue")
 
 
 def Store_SelectItem():
+    Cargo_ToStore = ""
 
-    print(f"{cr.Fore.WHITE}Would you like to store {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
-    Cargo_ToStore = input("[S,T,G,O]")
-    if (len(Cargo_ToStore) > 0) :
-        Cargo_ToStore = Cargo_ToStore.upper()
-
-    while (Cargo_ToStore not in "STGO"):
-        print(f"{cr.Fore.YELLOW}Invalid Selection! \{cr.Fore.WHITE}nWould you like to store {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
-        Cargo_ToStore = input("[S,T,G,O]")[0].upper()
+    while (Cargo_ToStore != "S") and (Cargo_ToStore != "T") and (Cargo_ToStore != "G") and (Cargo_ToStore != "O"):
+        print(f"{cr.Fore.WHITE}Would you like to store {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
+        Cargo_ToStore = input("[S,T,G,O]")
+        if (len(Cargo_ToStore) > 0) :
+            Cargo_ToStore = Cargo_ToStore[0].upper()
 
     match Cargo_ToStore:
         case "S":
@@ -535,29 +591,44 @@ def Store_SelectItem():
             Store_Cargo(3)
 
 
-def Retrieve_Cargo(rIndex):
+def Retrieve_Cargo(index):
 
-    Can_Retrieve = Player_Ship.getWHouseItemQty(rIndex)
-    print(f"You can retrieve {Can_Retrieve} {Player_Ship.getItemName(rIndex)}.")
-    Want_Retrieve = int(input("How much do you want to retrieve?"))
+    inWhouse = Player_WHouse.GetItemQty(index)
+    ShipSpace = Player_Ship.getShipCurrentCapacity()
+    
+    if (inWhouse > ShipSpace):
+        Can_Retrieve = ShipSpace
+    else: 
+        Can_Retrieve = inWhouse
 
-    print(f"Retrieve {Player_Ship.getItemName(rIndex)}!")
+    qty2Retrieve = Can_Retrieve + 1
+    while (qty2Retrieve > Can_Retrieve):
+        print("You can retrieve", Can_Retrieve, Game_Items.GetItemName(index),".")
+        qty2Retrieve = int(input("How much do you want to retrieve?"))
 
-    if (Player_Ship.retrieveItem(rIndex, Want_Retrieve) == False):
-        print("Unable to complete the transaction.  Check cargo!")
+    print(f"Retrieve {Game_Items.GetItemName(index)}!")
+
+    if (Player_WHouse.RetrieveItem(index,qty2Retrieve) == False):
+        print("Unable to complete the transaction.  Check Warehouse capacity!")
         User_Action = input("Press <ENTER> to continue")
+    else:
+        if (Player_Ship.addItem(index,qty2Retrieve) == False):
+            print("Unable to complete the transaction.  Check Ship cargo availability!")
+            User_Action = input("Press <ENTER> to continue")
+
+    print("Retrieved", qty2Retrieve,Game_Items.GetItemName(index))
+    continueGame = input("Press <ENTER> to continue")
+    
 
 
 def Retrieve_SelectItem():
+    Cargo_ToRetrieve = ""
 
-    print(f"{cr.Fore.WHITE}Would you like to retrieve {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
-    Cargo_ToRetrieve = input("[S,T,G,O]")
-    if (len(Cargo_ToRetrieve) > 0) :
-        Cargo_ToRetrieve = Cargo_ToRetrieve.upper()
-
-    while (Cargo_ToRetrieve not in "STGO"):
-        print(f"{cr.Fore.YELLOW}Invalid Selection! \n{cr.Fore.WHITE}Would you like to retrieve {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
-        Cargo_ToRetrieve = input("[S,T,G,O]")[0].upper()
+    while (Cargo_ToRetrieve != "S") and (Cargo_ToRetrieve != "T") and (Cargo_ToRetrieve != "G") and (Cargo_ToRetrieve != "O"):
+        print(f"{cr.Fore.WHITE}Would you like to retrieve {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
+        Cargo_ToRetrieve = input("[S,T,G,O]")
+        if (len(Cargo_ToRetrieve) > 0) :
+            Cargo_ToRetrieve = Cargo_ToRetrieve[0].upper()
 
     match Cargo_ToRetrieve:
         case "S":
@@ -573,16 +644,15 @@ def Retrieve_SelectItem():
 def Use_Warehouse():
     xfer_Amount = 0
     xfer_Item = 0
+    Whse_Action = ""
 
-    print(f"{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}S{cr.Fore.WHITE}tore or {cr.Fore.GREEN}R{cr.Fore.WHITE}etrieve items from the warehouse?")
-    User_Action = input("[S,R]")
-    if (len(User_Action) > 0) :
-        User_Action = User_Action.upper()
+    while (Whse_Action != "S") and (Whse_Action != "R"):
+        print(f"{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}S{cr.Fore.WHITE}tore or {cr.Fore.GREEN}R{cr.Fore.WHITE}etrieve items from the warehouse?")
+        Whse_Action = input("[S,R]")
+        if (len(Whse_Action) > 0) :
+            Whse_Action = Whse_Action[0].upper()
 
-    while (User_Action not in "SR"):
-        print(f"{cr.Fore.YELLOW}Invalid Selection! \n{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}S{cr.Fore.WHITE}tore or {cr.Fore.GREEN}R{cr.Fore.WHITE}etrieve items from the warehouse?")
-
-    match User_Action:
+    match Whse_Action:
         case "S":
             Store_SelectItem()
         case "R":
@@ -590,21 +660,15 @@ def Use_Warehouse():
 
 
 def Repair_Ship():
-    repAmount = 0
-    damAmount = 0
-    repCost = 0
-    
     damAmount = Player_Ship.getDamage()
-    repCost = (damAmount * 20)
+    repCost = (damAmount * 10)
 
-    Full_Repair = Player_Money.GetCashOnHand() // repCost
-    
-    print("Repairing a ship costs 20 gold per damage point.")
+    print("Repairing a ship costs 10 gold per damage point.")
     print("Your ship has "+str(damAmount)+" damage points.")
     print("It will cost "+str(repCost)+" to fully repair your ship.")
     Want_Repair = int(input("How much DAMAGE do you want to repair?"))
 
-    if ((Want_Repair * 100) > Player_Money.GetCashOnHand()):
+    if ((Want_Repair * 10) > Player_Money.GetCashOnHand()):
         print("Unable to complete the transaction.  Insufficient Funds!")
         User_Action = input("Press <ENTER> to continue")
     else :
@@ -612,7 +676,7 @@ def Repair_Ship():
             print("Unable to complete the transaction.  Check damage!")
             User_Action = input("Press <ENTER> to continue")
         else :
-            Player_Money.SpendMoney(Want_Repair * 20)
+            Player_Money.SpendMoney(Want_Repair * 10)
             Player_Ship.repairShip(Want_Repair)
    
 
@@ -620,30 +684,32 @@ def Repair_Ship():
 def Play():
 
     Clear_Screen()
-    print(f"{cr.Fore.GREEN}Welcome to " + str(Player_Port.getPortName()) + ", " + Company_Name + "!\n")
-    
-    Player_Ship.print_ShipStatus()
-    Player_Money.print_MoneyStatus()
+    print(f"{cr.Fore.GREEN}Welcome to " + str(Game_Port.getPortName()) + ", " + Company_Name + "!\n")
 
+    print("Ship Name     :", Player_Ship.getShipName())
+    print("Ship Capacity :", Player_Ship.getShipCurrentCapacity(), "/", Player_Ship.getShipMaxCapacity())
+    print("Ship Defense  :", Player_Ship.getShipDefense(), "/", Player_Ship.getShipMaxDefense())
+    print("Warehouse Cap.:", Player_Ship.whouseAvailableCapacity, "/", Player_Ship.whouseMaximumCapacity,"\n")
+
+
+
+    Player_Money.print_MoneyStatus()
 
     print("GOODS        PRICE     QTY IN SHIP     QTY IN WAREHOUSE")
     print("=====        =====     ===========     ================")
 
     for i in range(4):
-        print((Player_Port.getItemName(i)).ljust(9," "), ": ", str(Player_Port.getItemPrice(i)).ljust(9," "), str(Player_Ship.getItemQty(i)).ljust(15," "), str(Player_Ship.getWHouseItemQty(i)))
+        print((Game_Items.GetItemName(i)).ljust(9," "), ": ", str(Game_Items.GetItemPrice(i)).ljust(9," "), str(Player_Ship.getItemQty(i)).ljust(15," "), str(Player_WHouse.GetItemQty(i)))
 
     print("\n")
-    if (Player_Port.getPort() == 0):
-
-        print(f"{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, {cr.Fore.GREEN}V{cr.Fore.WHITE}isit the Bank, use the {cr.Fore.GREEN}W{cr.Fore.WHITE}arehouse, {cr.Fore.GREEN}R{cr.Fore.WHITE}epair your ship, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
-        User_Action = input("[B,S,V,W,R,T]")
+    User_Action = ""
+    if (Game_Port.getPort() == 0):  # Hong Kong has more services
     
-        if (len(User_Action) > 0) :
-            User_Action = User_Action.upper()
-
         while (User_Action != "B") and (User_Action != "S") and (User_Action != "V") and (User_Action != "W") and (User_Action != "R") and (User_Action != "T"):
-            print(f"{cr.Fore.YELLOW}Invalid Selection! \n{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, {cr.Fore.GREEN}V{cr.Fore.WHITE}isit the Bank, use the {cr.Fore.GREEN}W{cr.Fore.WHITE}arehouse, {cr.Fore.GREEN}R{cr.Fore.WHITE}epair your ship, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
-            User_Action = input("[B,S,V,W,R,T]")[0].upper()
+            print(f"{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, {cr.Fore.GREEN}V{cr.Fore.WHITE}isit the Bank, use the {cr.Fore.GREEN}W{cr.Fore.WHITE}arehouse, {cr.Fore.GREEN}R{cr.Fore.WHITE}epair your ship, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
+            User_Action = input("[B,S,V,W,R,T]")
+            if (len(User_Action) > 0) :
+                User_Action = User_Action[0].upper()
     
         match User_Action:
             case "B":
@@ -662,12 +728,11 @@ def Play():
                 User_Action = input("Press <ENTER> to continue")
     
     else:
-        print(f"Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
-        User_Action = input("[B,S,T]")[0].upper()
-  
         while (User_Action not in "BST"):
-            print(f"{cr.Fore.YELLOW}Invalid Selection! \n{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
-            User_Action = input("[B,S,T]")[0].upper()
+            print(f"Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
+            User_Action = input("[B,S,T]")
+            if (len(User_Action) > 0) :
+                User_Action = User_Action[0].upper()
   
         match User_Action:
             case "B":
