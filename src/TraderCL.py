@@ -93,6 +93,12 @@ class Money:
     def GetCashOnHand(self):
         return (self.onHand)
 
+    def GetCashInBank(self):
+        return (self.inBank)
+
+    def GetCashInDebt(self):
+        return (self.inDebt)
+
     def DepositMoney(self,gold2dep):
         retVal = False
         if (int(gold2dep) > int(self.onHand)):
@@ -151,6 +157,12 @@ class Warehouse:
     def GetCurrentCapacity(self):
         return (self.whseMaxCapacity - self.whseItemQty[0] - self.whseItemQty[1] - self.whseItemQty[2] - self.whseItemQty[3])
 
+    def GetMaxCapacity(self):
+        return(self.whseMaxCapacity)
+
+    def GetUsedCapacity(self):
+        return (self.whseItemQty[0] + self.whseItemQty[1] + self.whseItemQty[2] + self.whseItemQty[3])
+
     def GetItemQty(self, index):
         return(self.whseItemQty[index])
 
@@ -172,7 +184,6 @@ class Warehouse:
 class Ship:
     itemName = ["Silk", "Tea", "Gunpowder", "Opium"]
     itemQty = [0, 0, 0, 0]
-    whItemQty = [0, 0, 0, 0]
     shipMaxDefense = 500
     shipDefense = 500
     shipGuns = 5
@@ -194,27 +205,23 @@ class Ship:
     def getDamage(self):
         return (self.shipMaxDefense-self.shipDefense)
 
-    def print_ShipStatus(self):
-        print("Ship Name     :", self.name)
-        print("Ship Capacity :", self.getShipCurrentCapacity(), "/", self.shipMaximumCapacity)
-        print("Ship Defense  :", self.shipDefense, "/", self.shipMaxDefense)
-#        print("Ship Status   :", self.shipStatus)
-        print("Warehouse Cap.:", self.whouseAvailableCapacity, "/", self.whouseMaximumCapacity,"\n")
-
     def getItemQty(self, index):
         return (self.itemQty[index])
-
-    def getWHouseItemQty(self, index):
-        return (self.whItemQty[index])
+        
+    def getTotalWeight(self):
+        return(self.itemQty[0] + self.itemQty[1] + self.itemQty[2] + self.itemQty[3])
 
     def getItemName(self,index):
         return(self.itemName[index])
 
+    def getShipCapacity(self):
+        return(round(self.shipMaximumCapacity * (self.shipDefense / self.shipMaxDefense)))
+
     def getShipMaxCapacity(self):
         return(self.shipMaximumCapacity)
-
+        
     def getShipCurrentCapacity(self):
-        return(self.shipMaximumCapacity - self.itemQty[0] - self.itemQty[1] - self.itemQty[2] - self.itemQty[3])
+        return(self.getShipCapacity() - self.itemQty[0] - self.itemQty[1] - self.itemQty[2] - self.itemQty[3])
     
     def setCapacity(self,newCap):
         self.shipMaximumCapacity = newCap
@@ -239,12 +246,29 @@ class Ship:
 
     def damageShip(self,Damage):
         self.shipDefense = (self.shipDefense - Damage)
+        if (self.getTotalWeight() > self.getShipCapacity()):
+            while (self.getTotalWeight() > self.getShipCapacity()) and (self.getItemQty(1) > 0):
+                self.removeItem(1,1);
+        if (self.getTotalWeight() > self.getShipCapacity()):
+            while (self.getTotalWeight() > self.getShipCapacity()) and (self.getItemQty(2) > 0):
+                self.removeItem(2,1);
+        if (self.getTotalWeight() > self.getShipCapacity()):
+            while (self.getTotalWeight() > self.getShipCapacity()) and (self.getItemQty(0) > 0):
+                self.removeItem(0,1);
+        if (self.getTotalWeight() > self.getShipCapacity()):
+            while (self.getTotalWeight() > self.getShipCapacity()) and (self.getItemQty(3) > 0):
+                self.removeItem(3,1);
+        
 
     def repairShip(self,Repair):
         self.shipDefense = (self.shipDefense + Repair)
         if (self.shipDefense > self.shipMaxDefense):
             self.shipDefense = self.shipMaxDefense
+
+    def Attack(self):
+        return(int(self.shipGuns * random.randrange(5, 50, 5)))
         
+
     
 global Company_Name
 global User_Action
@@ -269,16 +293,16 @@ def Config_Player():
     global Player_WHouse
 
     Clear_Screen()
+    print("Welcome to the East Empire Trading Simulation!\n")
+    Company_Name = input("What shall we use for a company name?\n")
     
     Game_Items = tradeItemList()
     
     Game_Port = tradePort()
-    Player_Ship = Ship("The Peace Dividend")
+    Player_Ship = Ship(Company_Name)
     Player_Money = Money(1000)
     Player_WHouse = Warehouse("My Warehouse")
 
-    print("Welcome to the East Empire Trading Simulation!\n")
-    Company_Name = input("What shall we use for a company name?\n")
 
 
 def Print_PirateShips(pirateQty):
@@ -350,32 +374,114 @@ def Print_PirateShips(pirateQty):
     print(f"{cr.Fore.BLUE}"+pline11)
     
 
+#
+# ┌───────────────────────────────────────────────────────────────────────┐
+# │                 Company Name  : The Peace Dividend                    │
+# │ ┌────────────────────────────────────┐                                │
+# │ │ Hong Kong Warehouse                │              Date              │
+# │ │     Silk        10,000   In Use    │           99 JAN 1860          │
+# │ │     Tea         0         0        │                                │
+# │ │     Gunpowder   0        Vacant    │            Location            │
+# │ │     Opium       0         10,000   │            Hong Kong           │
+# │ └────────────────────────────────────┘                                │
+# │ ┌────────────────────────────────────┐              Debt              │
+# │ │ Ship's Hold 60          Guns 5     │               0                │
+# │ │     Silk        0                  │                                │
+# │ │     Tea         0                  │           Ship Status          │
+# │ │     Gunpowder   0                  │              100%              │
+# │ │     Opium       0                  │                                │
+# │ └────────────────────────────────────┘                                │
+# │  Cash: 1,000,000     Bank: 1,000,000                                  │
+# └───────────────────────────────────────────────────────────────────────┘
+# Present prices per unit here are:
+#      Opium: 5500    Silk: 550
+#      Arms : 60       Gunpowder: 15
+#
+#Gold On Hand : 1,000,000
+#Gold in Bank : 0        
+#Gold in Debt : 0        
+
+def print_GameStatus() :
+    print(f"{cr.Fore.GREEN} ┌───────────────────────────────────────────────────────────────────────┐")
+    print(f"{cr.Fore.GREEN} │ " + ("Firm: " + Player_Ship.getShipName()).center(70) + "│")
+    print(f"{cr.Fore.GREEN} │ ┌────────────────────────────────────┐                                │")
+    print(f"{cr.Fore.GREEN} │ │ Hong Kong Warehouse                │              Date              │")
+    print(f"{cr.Fore.GREEN} │ │     Silk        " + str(Player_WHouse.GetItemQty(0)).ljust(9) + "In Use:   │           99 JAN 1860          │")
+    print(f"{cr.Fore.GREEN} │ │     Tea         " + str(Player_WHouse.GetItemQty(1)).ljust(10) +  str(Player_WHouse.GetUsedCapacity()).ljust(9) + "│                                │")
+    print(f"{cr.Fore.GREEN} │ │     Gunpowder   " + str(Player_WHouse.GetItemQty(2)).ljust(9) + "Vacant:   │             Location           │")
+
+    tmpVal = "{:,}".format(Player_WHouse.GetCurrentCapacity())
+    print(f"{cr.Fore.GREEN} │ │     Opium       " + str(Player_WHouse.GetItemQty(3)).ljust(10) +  tmpVal.ljust(9) + "│            Hong Kong           │")
+    print(f"{cr.Fore.GREEN} │ └────────────────────────────────────┘                                │")
+
+
+#   Port: {cr.Fore.WHITE}" + Game_Port.getPortName().ljust(46," "),end="")
+
+
+#   print(f"{cr.Fore.GREEN} │ Port: {cr.Fore.WHITE}" + Game_Port.getPortName().ljust(46," "),end="")
+
+
+
+#    print(f"{cr.Fore.GREEN}Date: {cr.Fore.WHITE}" +"99 JAN 1860",end="")
+#    print(f"{cr.Fore.GREEN} │")
+#    print(f"{cr.Fore.GREEN} │ ┌────────────────────────────────────┐   ┌──────────────────────────┐ │")
+#    print(f"{cr.Fore.GREEN} │ │ Company Name  : {cr.Fore.WHITE}" + Player_Ship.getShipName().ljust(19," "),end="")
+#    print(f"{cr.Fore.GREEN}│   │ Gold On Hand : {cr.Fore.WHITE}" + str(Player_Money.GetCashOnHand()).ljust(9," "),end="")
+#    print(f"{cr.Fore.GREEN} │ │")
+#    print(f"{cr.Fore.GREEN} │ │ Ship Capacity : {cr.Fore.WHITE}" + (str(Player_Ship.getShipCapacity())+ " / " + str(Player_Ship.getShipMaxCapacity())).ljust(19," "),end="")
+#    print(f"{cr.Fore.GREEN}│   │ Gold in Bank : {cr.Fore.WHITE}" + str(Player_Money.GetCashInBank()).ljust(9," "),end="")
+#    print(f"{cr.Fore.GREEN} │ │")
+#    print(f"{cr.Fore.GREEN} │ │ Ship Status   : {cr.Fore.WHITE}" + (str(Player_Ship.getShipDefense()) + " / " + str(Player_Ship.getShipMaxDefense())).ljust(19," "),end="")
+#    print(f"{cr.Fore.GREEN}│   │ Gold in Debt : {cr.Fore.YELLOW}" + (str(round(Player_Money.GetCashInDebt()))).ljust(9," "),end="")
+#    print(f"{cr.Fore.GREEN} │ │")
+#    print(f"{cr.Fore.GREEN} │ └────────────────────────────────────┘   └──────────────────────────┘ │")
+
+
+
+#    print("Ship Name     :", Player_Ship.getShipName())
+#    print("Ship Capacity :", Player_Ship.getShipCapacity(), "/", Player_Ship.getShipCapacity())
+    print("Ship Defense  :", Player_Ship.getShipDefense(), "/", Player_Ship.getShipMaxDefense())
+    print("Warehouse Cap.:", str(Player_WHouse.GetCurrentCapacity()), "/", str(Player_WHouse.GetMaxCapacity()),"\n")
+    print("Gold On Hand :", Player_Money.GetCashOnHand())
+    print("Gold in Bank :", Player_Money.GetCashInBank())
+    print("Gold in Debt :", round(Player_Money.GetCashInDebt()),"\n")
+
+
+
+
 def Ship_UnderAttack():
 
     underAttack = True
     piratesInitial = random.randrange(1, 15, 1)
+    piratesDefense = (piratesInitial * 100)
     piratesLeft = piratesInitial   # use piratesInitial to calculate the flotsam and jetsam.  more ships = greater reward
     while (underAttack):
         Clear_Screen()
         shipDamage = int(random.randrange(1, 15, 1))
         Player_Ship.damageShip(shipDamage)
-        Player_Ship.print_ShipStatus()
-        Player_Money.print_MoneyStatus()
+        print_GameStatus()
+
         Print_PirateShips(piratesLeft)
 
-        print("We are under attack by", piratesLeft, "ships!")
-        print("We have sustained", shipDamage, "damage to our defense.")
-        print(f"{cr.Fore.WHITE}Shall we {cr.Fore.GREEN}F{cr.Fore.WHITE}ight or {cr.Fore.GREEN}R{cr.Fore.WHITE}un?")
-        Fight = input("[F,R]")[0].upper()
-        while (Fight != "F") and (Fight != "R"):
-            print(f"{cr.Fore.YELLOW}Invalid Selection!\n{cr.Fore.WHITE}We're under attack.  Shall we {cr.Fore.GREEN}F{cr.Fore.WHITE}ight or {cr.Fore.GREEN}R{cr.Fore.WHITE}un?")
-            Fight = input("[F,R]")[0]
+        print(f"We are under attack by{cr.Fore.YELLOW} " + str(piratesLeft), end=" ")
+        print(f"{cr.Fore.WHITE}ships!")
+#        print("Defense: "+str(piratesDefense))
+#        print("Start Ships: "+str(piratesInitial))
+#        print("Ships Left: "+str(piratesLeft))
+        print(f"We have sustained{cr.Fore.YELLOW} " + str(shipDamage), end=" ")
+        print(f"{cr.Fore.WHITE}damage to our defense.")
+        RunFight = ""
+        while (RunFight != "F") and (RunFight != "R"):
+            print(f"We're under attack.  Shall we {cr.Fore.GREEN}F{cr.Fore.WHITE}ight or {cr.Fore.GREEN}R{cr.Fore.WHITE}un?")
+            RunFight = input("[F,R]")
+            if (len(RunFight)> 0) :
+                RunFight = RunFight[0].upper()
 
-        if (Fight == "F"):
-            shipsSunk = int(random.randrange(1, 4, 1))
-            piratesLeft = piratesLeft - shipsSunk
+        if (RunFight == "F"):
+            piratesDefense = (piratesDefense - Player_Ship.Attack())
+            piratesLeft = (piratesDefense // 100)
             if (piratesLeft < 1):
-                print(f"{cr.Fore.WHITE}Victory!  We have sunk all attacking ships!")
+                print(f"{cr.Fore.WHITE}Victory!  We have sunk all of the attacking ships!")
                 FlotsamQty = int(random.randrange(1, piratesInitial, 1))
                 FlotsamItem = int(random.randrange(1, 4, 1))
                 print("We have recovered some flotsam and jetsam.",FlotsamQty, "of",Player_Ship.getItemName(FlotsamItem))
@@ -384,7 +490,7 @@ def Ship_UnderAttack():
                 Player_Ship.addItem(FlotsamItem,FlotsamQty)
                 underAttack = False
             else :
-                print(f"{cr.Fore.WHITE}We have sunk ", shipsSunk, "ships!")
+                print(f"{cr.Fore.WHITE}There are still ", piratesLeft, "ships attacking!")
         else :
             outRun = random.randrange(1, 4, 1)
             if (outRun >= piratesLeft):
@@ -469,9 +575,9 @@ def Buy_SelectItem():
 
     Cargo_ToBuy = ""
     
-    while (Cargo_ToBuy != "S") and (Cargo_ToBuy != "T") and (Cargo_ToBuy != "G") and (Cargo_ToBuy != "O"):
+    while (Cargo_ToBuy != "S") and (Cargo_ToBuy != "T") and (Cargo_ToBuy != "G") and (Cargo_ToBuy != "O") and (Cargo_ToBuy != "Q"):
         print(f"Would you like to buy {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
-        Cargo_ToBuy = input("[S,T,G,O]")
+        Cargo_ToBuy = input("[S,T,G,O,Q]")
         if (len(Cargo_ToBuy) > 0) :
             Cargo_ToBuy = Cargo_ToBuy[0].upper()
 
@@ -489,9 +595,9 @@ def Sell_SelectItem():
 
     Cargo_ToSell = ""
 
-    while (Cargo_ToSell != "S") and (Cargo_ToSell != "T") and (Cargo_ToSell != "G") and (Cargo_ToSell != "O"):
+    while (Cargo_ToSell != "S") and (Cargo_ToSell != "T") and (Cargo_ToSell != "G") and (Cargo_ToSell != "O") and (Cargo_ToSell != "Q"):
         print(f"Would you like to sell {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
-        Cargo_ToSell = input("[S,T,G,O]")
+        Cargo_ToSell = input("[S,T,G,O,Q]")
         if (len(Cargo_ToSell) > 0) :
             Cargo_ToSell = Cargo_ToSell[0].upper()
 
@@ -574,9 +680,9 @@ def Store_Cargo(sIndex):
 def Store_SelectItem():
     Cargo_ToStore = ""
 
-    while (Cargo_ToStore != "S") and (Cargo_ToStore != "T") and (Cargo_ToStore != "G") and (Cargo_ToStore != "O"):
+    while (Cargo_ToStore != "S") and (Cargo_ToStore != "T") and (Cargo_ToStore != "G") and (Cargo_ToStore != "O") and (Cargo_ToStore != "Q"):
         print(f"{cr.Fore.WHITE}Would you like to store {cr.Fore.GREEN}S{cr.Fore.WHITE}ilk ,{cr.Fore.GREEN}T{cr.Fore.WHITE}ea, {cr.Fore.GREEN}G{cr.Fore.WHITE}unpowder ,or {cr.Fore.GREEN}O{cr.Fore.WHITE}pium?")
-        Cargo_ToStore = input("[S,T,G,O]")
+        Cargo_ToStore = input("[S,T,G,O,Q]")
         if (len(Cargo_ToStore) > 0) :
             Cargo_ToStore = Cargo_ToStore[0].upper()
 
@@ -686,14 +792,12 @@ def Play():
     Clear_Screen()
     print(f"{cr.Fore.GREEN}Welcome to " + str(Game_Port.getPortName()) + ", " + Company_Name + "!\n")
 
-    print("Ship Name     :", Player_Ship.getShipName())
-    print("Ship Capacity :", Player_Ship.getShipCurrentCapacity(), "/", Player_Ship.getShipMaxCapacity())
-    print("Ship Defense  :", Player_Ship.getShipDefense(), "/", Player_Ship.getShipMaxDefense())
-    print("Warehouse Cap.:", Player_Ship.whouseAvailableCapacity, "/", Player_Ship.whouseMaximumCapacity,"\n")
-
-
-
-    Player_Money.print_MoneyStatus()
+    print_GameStatus() 
+#    print("Ship Name     :", Player_Ship.getShipName())
+#    print("Ship Capacity :", Player_Ship.getShipCurrentCapacity(), "/", Player_Ship.getShipMaxCapacity())
+#    print("Ship Defense  :", Player_Ship.getShipDefense(), "/", Player_Ship.getShipMaxDefense())
+#    print("Warehouse Cap.:", str(Player_WHouse.GetCurrentCapacity()), "/", str(Player_WHouse.GetMaxCapacity()),"\n")
+#    Player_Money.print_MoneyStatus()
 
     print("GOODS        PRICE     QTY IN SHIP     QTY IN WAREHOUSE")
     print("=====        =====     ===========     ================")
@@ -728,7 +832,7 @@ def Play():
                 User_Action = input("Press <ENTER> to continue")
     
     else:
-        while (User_Action not in "BST"):
+        while (User_Action != "B") and (User_Action != "S") and (User_Action != "T"):
             print(f"Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
             User_Action = input("[B,S,T]")
             if (len(User_Action) > 0) :
