@@ -16,6 +16,9 @@ class gameDate:
     def GetDate(self):
         return(str(self.DOM).rjust(2,"0") + " " + self.monthName[(self.MOY - 1)] + " " + str(self.YEAR))
 
+    def GetMonth(self):
+        return(self.MOY)
+
     def IncrementDate(self, Days2Add):
         self.DOM = self.DOM + Days2Add
 
@@ -35,8 +38,9 @@ class gameDate:
             self.YEAR += 1
             self.MOY = 1
     
+# -------[ END class gameDate ]---------
 
-class tradeItemList:
+class gameItems:
 # lists = index 0 - 3
     itemName = ["Opium", "Silk", "Arms", "General"]
     itemPrice = [0, 0, 0, 0]
@@ -53,7 +57,9 @@ class tradeItemList:
     def GetItemName(self,index):
         return(self.itemName[index])
 
-class tradePort:
+# -------[ END class gameItems ]---------
+
+class gamePort:
     portNames = ["Hong Kong", "Batavia", "Calcutta", "Jambi", "Muscat", "Penang", "Rangoon", "Surat"]
     portIndex = 0
 
@@ -88,8 +94,9 @@ class tradePort:
         pChars = ",".join(portList)
         return(pChars)
 
+# -------[ END class gamePort ]---------
 
-class Gold:
+class playerGold:
     onHand = 0
     inBank = 0
     inDebt = 0
@@ -100,7 +107,7 @@ class Gold:
     def SpendGold(self,gold2spend):
         retVal = False
         if (gold2spend > self.onHand):
-            print("Too much!")
+            print("You do not have that much gold.")
         else : 
             self.onHand = (self.onHand - gold2spend)
             retVal = True
@@ -121,7 +128,7 @@ class Gold:
     def DepositGold(self,gold2dep):
         retVal = False
         if (int(gold2dep) > int(self.onHand)):
-            print("Too much!")
+            print("You do not have that much gold.")
         else : 
             self.onHand = (self.onHand - gold2dep)
             self.inBank = (self.inBank + gold2dep)
@@ -131,7 +138,7 @@ class Gold:
     def WithdrawGold(self,gold2wd):
         retVal = False
         if (int(gold2wd) > int(self.inBank)):
-            print("Too much!")
+            print("You do not have that much gold.")
         else : 
             self.onHand = (self.onHand + gold2wd)
             self.inBank = (self.inBank - gold2wd)
@@ -141,7 +148,7 @@ class Gold:
     def BorrowGold(self,gold2borrow):
         retVal = False
         if ((self.inDebt + gold2borrow) > 1000):
-            print("Too much! 1000 Max")
+            print("You cannot borrow that much! 1000 Max")
         else : 
             self.onHand = (self.onHand + gold2borrow)
             self.inDebt = (self.inDebt + gold2borrow)
@@ -154,7 +161,7 @@ class Gold:
     def RepayGold(self,gold2repay):
         retVal = False
         if (self.onHand < gold2repay):
-            print("Too much! Check cash on hand")
+            print("You do not have that much gold.")
         elif (round(self.inDebt) < gold2repay):
             print("Too much! Overpayment!")
         else : 
@@ -164,68 +171,63 @@ class Gold:
             retVal = True
         return(retVal)
 
+# -------[ END class playerGold ]---------
 
-class Warehouse:
-#    whseItemName = ["Opium", "Silk", "Arms", "General"]
-    whseItemQty = [0, 0, 0, 0]
-    whseMaxCapacity = 10000
+class playerWarehouse:
+    itemQty = [0, 0, 0, 0]
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
+        self.maxCapacity = 10000
 
     def GetCurrentCapacity(self):
-        return (self.whseMaxCapacity - self.whseItemQty[0] - self.whseItemQty[1] - self.whseItemQty[2] - self.whseItemQty[3])
+        return (self.maxCapacity - self.itemQty[0] - self.itemQty[1] - self.itemQty[2] - self.itemQty[3])
 
     def GetMaxCapacity(self):
-        return(self.whseMaxCapacity)
-
-#    def GetUsedCapacity(self):
-#        return (self.whseItemQty[0] + self.whseItemQty[1] + self.whseItemQty[2] + self.whseItemQty[3])
+        return(self.maxCapacity)
 
     def GetItemQty(self, index):
-        return(self.whseItemQty[index])
+        return(self.itemQty[index])
 
-    def StoreItem(self, index, qty2Store):
+    def StoreItem(self, index, qty):
         retVal = False
-        if (qty2Store <= self.GetCurrentCapacity()) :
-            self.whseItemQty[index] = (self.whseItemQty[index] + qty2Store)
+        if (qty <= self.GetCurrentCapacity()) :
+            self.itemQty[index] = (self.itemQty[index] + qty)
             retVal = True
         return (retVal)
 
-    def RetrieveItem(self, index, qty2Retrieve):
+    def RetrieveItem(self, index, qty):
         retVal = False
-        if (qty2Retrieve <= self.whseItemQty[index]) :
-            self.whseItemQty[index] = (self.whseItemQty[index] - qty2Retrieve)
+        if (qty <= self.itemQty[index]) :
+            self.itemQty[index] = (self.itemQty[index] - qty)
             retVal = True
         return retVal
 
+# -------[ END class playerWarehouse ]---------
 
-class Ship:
-#    itemName = ["Opium", "Silk", "Arms", "General"]
+class playerShip:
     itemQty = [0, 0, 0, 0]
-    shipMaxDefense = 500
+    maxDefense = 500
     shipDefense = 500
     shipGuns = 5
-    shipMaximumCapacity = 50
-    shipAvailableCapacity = 50
+    maxCapacity = 50
     
     def __init__(self, name):
         self.name = name
     
-    def GetShipName(self):
+    def GetName(self):
         return (self.name)
         
-    def GetShipDefense(self):
+    def GetDefense(self):
         return (self.shipDefense)
 
-    def GetShipGuns(self):
+    def GetGuns(self):
         return (self.shipGuns)
 
     def GetDamage(self):
-        return (self.shipMaxDefense-self.shipDefense)
+        return (self.maxDefense-self.shipDefense)
 
     def GetStatus(self):
-        return (round((self.shipDefense/self.shipMaxDefense) * 100))
+        return (round((self.shipDefense/self.maxDefense) * 100))
 
     def GetItemQty(self, index):
         return (self.itemQty[index])
@@ -233,21 +235,21 @@ class Ship:
     def GetTotalWeight(self):
         return(self.itemQty[0] + self.itemQty[1] + self.itemQty[2] + self.itemQty[3])
 
-    def GetShipCapacity(self):
-        return(round(self.shipMaximumCapacity * (self.shipDefense / self.shipMaxDefense)))
-
-    def GetShipMaxCapacity(self):
-        return(self.shipMaximumCapacity)
+    def GetMaxCapacity(self):
+        return(self.maxCapacity)
         
-    def GetShipCurrentCapacity(self):
-        return(self.GetShipCapacity() - self.itemQty[0] - self.itemQty[1] - self.itemQty[2] - self.itemQty[3])
+    def GetCapacity(self):
+        return(round(self.maxCapacity * (self.shipDefense / self.maxDefense)))
+
+    def GetCurrentCapacity(self):
+        return(self.GetCapacity() - self.GetTotalWeight())
     
     def SetCapacity(self,newCap):
-        self.shipMaximumCapacity = newCap
+        self.maxCapacity = newCap
     
     def AddItem(self, index, amount2add):
         retVal = False
-        if (amount2add > self.GetShipCurrentCapacity()) :
+        if (amount2add > self.GetCurrentCapacity()) :
             print("Too much!")
         else :
             self.itemQty[index] = (self.itemQty[index] + amount2add)
@@ -265,30 +267,29 @@ class Ship:
 
     def DamageShip(self,Damage):
         self.shipDefense = (self.shipDefense - Damage)
-        if (self.GetTotalWeight() > self.GetShipCapacity()):
-            while (self.GetTotalWeight() > self.GetShipCapacity()) and (self.GetItemQty(3) > 0):
+        if (self.GetTotalWeight() > self.GetCapacity()):
+            while (self.GetTotalWeight() > self.GetCapacity()) and (self.GetItemQty(3) > 0):
                 self.RemoveItem(3,1);
-        if (self.GetTotalWeight() > self.GetShipCapacity()):
-            while (self.GetTotalWeight() > self.GetShipCapacity()) and (self.GetItemQty(2) > 0):
+        if (self.GetTotalWeight() > self.GetCapacity()):
+            while (self.GetTotalWeight() > self.GetCapacity()) and (self.GetItemQty(2) > 0):
                 self.RemoveItem(2,1);
-        if (self.GetTotalWeight() > self.GetShipCapacity()):
-            while (self.GetTotalWeight() > self.GetShipCapacity()) and (self.GetItemQty(1) > 0):
+        if (self.GetTotalWeight() > self.GetCapacity()):
+            while (self.GetTotalWeight() > self.GetCapacity()) and (self.GetItemQty(1) > 0):
                 self.RemoveItem(1,1);
-        if (self.GetTotalWeight() > self.GetShipCapacity()):
-            while (self.GetTotalWeight() > self.GetShipCapacity()) and (self.GetItemQty(0) > 0):
+        if (self.GetTotalWeight() > self.GetCapacity()):
+            while (self.GetTotalWeight() > self.GetCapacity()) and (self.GetItemQty(0) > 0):
                 self.RemoveItem(0,1);
-        
 
     def RepairShip(self,Repair):
         self.shipDefense = (self.shipDefense + Repair)
-        if (self.shipDefense > self.shipMaxDefense):
-            self.shipDefense = self.shipMaxDefense
+        if (self.shipDefense > self.maxDefense):
+            self.shipDefense = self.maxDefense
 
     def Attack(self):
         return(int(self.shipGuns * random.randrange(5, 50, 5)))
         
+# -------[ END class playerShip ]---------
     
-global Company_Name
 global Game_Items
 global Game_Port
 global Game_Date
@@ -302,7 +303,6 @@ def Clear_Screen():
 
     
 def Config_Game():
-    global Company_Name
     global Game_Items
     global Game_Port
     global Game_Date
@@ -310,17 +310,18 @@ def Config_Game():
     global Player_Gold
     global Player_WHouse
 
+    companyName = ""
     Clear_Screen()
     print("Welcome to the East Empire Trading Simulation!\n")
-    Company_Name = input("What shall we use for a company name?\n")
+    companyName = input("What shall we use for a company name?\n")
     
-    Game_Items = tradeItemList()
-    Game_Port = tradePort()
+    Game_Items = gameItems()
+    Game_Port = gamePort()
     Game_Date = gameDate()
     
-    Player_Ship = Ship(Company_Name)
-    Player_Gold = Gold(1000)
-    Player_WHouse = Warehouse("My Warehouse")
+    Player_Ship = playerShip(companyName)
+    Player_Gold = playerGold(1000)
+    Player_WHouse = playerWarehouse()
 
 
 def Print_PirateShips(pirateQty):
@@ -438,9 +439,9 @@ def Select_TradeItem():
 # └──────────────────────────────────────────────────────────────────────┘
                    
 
-def print_GameStatus() :
+def Print_GameStatus() :
     print(f"{cr.Fore.GREEN} ┌──────────────────────────────────────────────────────────────────────┐")
-    print(f"{cr.Fore.GREEN} │" + ("Firm: " + Player_Ship.GetShipName()).center(70) + "│")
+    print(f"{cr.Fore.GREEN} │" + ("Firm: " + Player_Ship.GetName()).center(70) + "│")
     print(f"{cr.Fore.GREEN} │  {cr.Fore.WHITE}" + Game_Port.GetPortName().ljust(49),end="")
     print(f"{cr.Fore.GREEN}Date: {cr.Fore.WHITE}" + Game_Date.GetDate(),end="")
     print(f"{cr.Fore.GREEN}  │")
@@ -449,10 +450,10 @@ def print_GameStatus() :
     print(f"{cr.Fore.GREEN} │ │ ================================== │ │ Gold in Bank : " + str("{:,}".format(Player_Gold.GetGoldInBank())).ljust(11) + "│ │")
     print(f"{cr.Fore.GREEN} │ │ " + str(Game_Items.GetItemName(0)).ljust(9) + str(Game_Items.GetItemPrice(0)).ljust(8) + str(Player_Ship.GetItemQty(0)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(0))).ljust(11) + "│ │ Gold in Debt : " + str("{:,}".format(round(Player_Gold.GetGoldInDebt()))).ljust(11) + "│ │")
     print(f"{cr.Fore.GREEN} │ │ " + str(Game_Items.GetItemName(1)).ljust(9) + str(Game_Items.GetItemPrice(1)).ljust(8) + str(Player_Ship.GetItemQty(1)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(1))).ljust(11) + "│ ├───────────────────────────┤ │")
-    print(f"{cr.Fore.GREEN} │ │ " + str(Game_Items.GetItemName(2)).ljust(9) + str(Game_Items.GetItemPrice(2)).ljust(8) + str(Player_Ship.GetItemQty(2)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(2))).ljust(11) + "│ │ Ship Capacity : " + (str(Player_Ship.GetShipCapacity()) + " / " + str(Player_Ship.GetShipMaxCapacity())).ljust(10) + "│ │")
-    print(f"{cr.Fore.GREEN} │ │ " + str(Game_Items.GetItemName(3)).ljust(9) + str(Game_Items.GetItemPrice(3)).ljust(8) + str(Player_Ship.GetItemQty(3)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(3))).ljust(11) + "│ │ Ship Guns     : " + str(Player_Ship.GetShipGuns()).ljust(10) + "│ │")
-    print(f"{cr.Fore.GREEN} │ │                  ================= │ │ Ship Defense  : "  + str(Player_Ship.GetShipDefense()).ljust(10) + "│ │")
-    print(f"{cr.Fore.GREEN} │ │       Available  " + str(Player_Ship.GetShipCurrentCapacity()).ljust(7) + str("{:,}".format(Player_WHouse.GetCurrentCapacity())).ljust(11) + "│ │ Ship Status   : " + str(Player_Ship.GetStatus()).ljust(3) + "%      │ │")
+    print(f"{cr.Fore.GREEN} │ │ " + str(Game_Items.GetItemName(2)).ljust(9) + str(Game_Items.GetItemPrice(2)).ljust(8) + str(Player_Ship.GetItemQty(2)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(2))).ljust(11) + "│ │ Ship Capacity : " + (str(Player_Ship.GetCapacity()) + " / " + str(Player_Ship.GetMaxCapacity())).ljust(10) + "│ │")
+    print(f"{cr.Fore.GREEN} │ │ " + str(Game_Items.GetItemName(3)).ljust(9) + str(Game_Items.GetItemPrice(3)).ljust(8) + str(Player_Ship.GetItemQty(3)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(3))).ljust(11) + "│ │ Ship Guns     : " + str(Player_Ship.GetGuns()).ljust(10) + "│ │")
+    print(f"{cr.Fore.GREEN} │ │                  ================= │ │ Ship Defense  : "  + str(Player_Ship.GetDefense()).ljust(10) + "│ │")
+    print(f"{cr.Fore.GREEN} │ │       Available  " + str(Player_Ship.GetCurrentCapacity()).ljust(7) + str("{:,}".format(Player_WHouse.GetCurrentCapacity())).ljust(11) + "│ │ Ship Status   : " + str(Player_Ship.GetStatus()).ljust(3) + "%      │ │")
     print(f"{cr.Fore.GREEN} │ └────────────────────────────────────┘ └───────────────────────────┘ │")
     print(f"{cr.Fore.GREEN} └──────────────────────────────────────────────────────────────────────┘")
     
@@ -467,20 +468,20 @@ def Ship_UnderAttack():
         Clear_Screen()
         shipDamageTaken = int(random.randrange(1, ((piratesLeft if piratesLeft > 0 else 1)*2), 1))  # damage taken to Player_Ship -  calc on number of pirates left
         Player_Ship.DamageShip(shipDamageTaken)
-        print_GameStatus()
+        Print_GameStatus()
         Print_PirateShips(piratesLeft)
 
-        print(f"We are under attack by{cr.Fore.YELLOW} " + str(piratesLeft), end=" ")
+        print(f"{cr.Fore.WHITE}We are under attack by{cr.Fore.YELLOW} " + str(piratesLeft), end=" ")
         print(f"{cr.Fore.WHITE}ships!")
 #        print("Defense: "+str(piratesDefense))
 #        print("Start Ships: "+str(piratesInitial))
 #        print("Ships Left: "+str(piratesLeft))
-        print(f"We have sustained{cr.Fore.YELLOW} " + str(shipDamageTaken), end=" ")
+        print(f"{cr.Fore.WHITE}We have sustained{cr.Fore.YELLOW} " + str(shipDamageTaken), end=" ")
         print(f"{cr.Fore.WHITE}damage to our defenses.")
 
         RunFight = ""
         while (RunFight != "F") and (RunFight != "R"):
-            print(f"We're under attack.  Shall we {cr.Fore.GREEN}F{cr.Fore.WHITE}ight or {cr.Fore.GREEN}R{cr.Fore.WHITE}un?")
+            print(f"{cr.Fore.WHITE}We're under attack.  Shall we {cr.Fore.GREEN}F{cr.Fore.WHITE}ight or {cr.Fore.GREEN}R{cr.Fore.WHITE}un?")
             RunFight = input("[F,R]")
             if (len(RunFight)> 0) :
                 RunFight = RunFight[0].upper()
@@ -494,8 +495,8 @@ def Ship_UnderAttack():
                 FlotsamQty = int(random.randrange(1, piratesInitial, 1))
                 FlotsamItem = int(random.randrange(1, 4, 1))
                 print("We have recovered some flotsam and jetsam.",FlotsamQty, "of",Game_Items.GetItemName(FlotsamItem))
-                if (FlotsamQty > Player_Ship.GetShipCurrentCapacity()):
-                    FlotsamQty = Player_Ship.GetShipCurrentCapacity()
+                if (FlotsamQty > Player_Ship.GetCurrentCapacity()):
+                    FlotsamQty = Player_Ship.GetCurrentCapacity()
                 Player_Ship.AddItem(FlotsamItem,FlotsamQty)
                 underAttack = False
             else :
@@ -568,28 +569,33 @@ def Buy_Cargo():
     print(f"Buy {Game_Items.GetItemName(bIndex)}!")
     print(f"You can afford {Can_Buy} {Game_Items.GetItemName(bIndex)}.")
     Want_Buy = int(input("How much do you want to buy?"))
-    if (Want_Buy > Can_Buy):
-        print("Unable to complete the transaction.  Insufficient Funds!")
-        Want_Buy = input("Press <ENTER> to continue")
-    else :
+    if (Want_Buy > 0) and (Want_Buy <= Can_Buy) :
         if (Player_Ship.AddItem(bIndex, Want_Buy) == False):
             print("Unable to complete the transaction.  Check capacity!")
             Want_Buy = input("Press <ENTER> to continue")
         else :
             Player_Gold.SpendGold(Want_Buy * Game_Items.GetItemPrice(bIndex))
+    else:
+        print("Invalid Amount Selected")
+        Want_Buy = input("Press <ENTER> to continue")
    
 
 def Sell_Cargo():
     sIndex = Select_TradeItem()
+    Can_Sell = Player_Ship.GetItemQty(sIndex)
     print(f"Sell {Game_Items.GetItemName(sIndex)}!")
     print(f"You have {Player_Ship.GetItemQty(sIndex)} of {Game_Items.GetItemName(sIndex)} to sell.")
-    Want_Sell = input("How much do you want to sell?")
+    Want_Sell = int(input("How much do you want to sell?"))
 
-    if (Player_Ship.RemoveItem(sIndex, Want_Sell) == False):
-        print("Unable to complete the transaction.  Check capacity!")
-        Want_Sell = input("Press <ENTER> to continue")
+    if (Want_Sell > 0) and (Want_Sell <= Can_Sell) :
+        if (Player_Ship.RemoveItem(sIndex, Want_Sell) == False):
+            print("Unable to complete the transaction.  Check capacity!")
+            Want_Sell = input("Press <ENTER> to continue")
+        else:
+            Player_Gold.AddGold(Want_Sell * Game_Items.GetItemPrice(sIndex))
     else:
-        Player_Gold.AddGold(Want_Sell * Game_Items.GetItemPrice(sIndex))
+        print("Invalid Amount Selected")
+        Want_Sell = input("Press <ENTER> to continue")
 
 
 def Visit_Bank():
@@ -606,13 +612,13 @@ def Visit_Bank():
         case "D":
             Bank_Amount = int(input("How much would you like to deposit?"))
             if (Player_Gold.DepositGold(Bank_Amount) == False):
-                print("Unable to complete the transaction.  Insuffcient Funds!")
+                print("Unable to complete the transaction.  Insufficient Funds!")
                 Bank_Action = input("Press <ENTER> to continue")
 
         case "W":
             Bank_Amount = int(input("How much would you like to withdraw?"))
             if (Player_Gold.WithdrawGold(Bank_Amount) == False):
-                print("Unable to complete the transaction.  Insuffcient Funds!")
+                print("Unable to complete the transaction.  Insufficient Funds!")
                 Bank_Action = input("Press <ENTER> to continue")
 
         case "B":
@@ -624,11 +630,11 @@ def Visit_Bank():
         case "R":
             Bank_Amount = int(input("How much would you like to repay?"))
             if (Player_Gold.RepayGold(Bank_Amount) == False):
-                print("Unable to complete the transaction.  Insuffcient Funds!")
+                print("Unable to complete the transaction.  Insufficient Funds!")
                 Bank_Action = input("Press <ENTER> to continue")
 
 
-def Store_Cargo(sIndex):
+def Store_Cargo():
     sIndex = Select_TradeItem()
     onShip = int(Player_Ship.GetItemQty(sIndex))
     WarehouseSpace = Player_WHouse.GetCurrentCapacity()
@@ -659,7 +665,7 @@ def Store_Cargo(sIndex):
 def Retrieve_Cargo():
     rIndex = Select_TradeItem()
     inWhouse = Player_WHouse.GetItemQty(rIndex)
-    ShipSpace = Player_Ship.GetShipCurrentCapacity()
+    ShipSpace = Player_Ship.GetCurrentCapacity()
     
     if (inWhouse > ShipSpace):
         Can_Retrieve = ShipSpace
@@ -731,9 +737,7 @@ def Repair_Ship():
 def Play():
 
     Clear_Screen()
-    print(f"{cr.Fore.GREEN}Welcome to " + str(Game_Port.GetPortName()) + ", " + Company_Name + "!\n")
-
-    print_GameStatus() 
+    Print_GameStatus() 
 
     print("\n")
     User_Action = ""
