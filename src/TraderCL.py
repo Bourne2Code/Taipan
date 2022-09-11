@@ -5,6 +5,37 @@ import random
 import colorama as cr
 cr.init(autoreset=True)
 
+class gameDate:
+    monthName = ["Jan", "Feb", "Mar", "Apr","May", "Jun", "Jul", "Aug","Sep", "Oct", "Nov", "Dec"]
+
+    def __init__(self):
+        self.DOM = 1
+        self.MOY = 1
+        self.YEAR = 1850
+
+    def GetDate(self):
+        return(str(self.DOM).rjust(2,"0") + " " + self.monthName[(self.MOY - 1)] + " " + str(self.YEAR))
+
+    def IncrementDate(self, Days2Add):
+        self.DOM = self.DOM + Days2Add
+
+        if (self.MOY == 1) or (self.MOY == 3) or (self.MOY == 5) or (self.MOY == 7) or (self.MOY == 8) or (self.MOY == 10) or (self.MOY == 12):
+            if (self.DOM > 31):
+                self.DOM -= 31
+                self.MOY += 1
+        if (self.MOY == 4) or (self.MOY == 6) or (self.MOY == 9) or (self.MOY == 11):
+            if (self.DOM > 30):
+                self.DOM -= 30
+                self.MOY += 1
+        if (self.MOY == 2):
+            if (self.DOM > 28):
+                self.DOM -= 28
+                self.MOY += 1
+        if (self.MOY > 12) :
+            self.YEAR += 1
+            self.MOY = 1
+    
+
 class tradeItemList:
 # lists = index 0 - 3
     itemName = ["Opium", "Silk", "Arms", "General"]
@@ -260,6 +291,7 @@ class Ship:
 global Company_Name
 global Game_Items
 global Game_Port
+global Game_Date
 global Player_Ship
 global Player_Gold
 global Player_WHouse
@@ -273,6 +305,7 @@ def Config_Game():
     global Company_Name
     global Game_Items
     global Game_Port
+    global Game_Date
     global Player_Ship
     global Player_Gold
     global Player_WHouse
@@ -282,8 +315,9 @@ def Config_Game():
     Company_Name = input("What shall we use for a company name?\n")
     
     Game_Items = tradeItemList()
-    
     Game_Port = tradePort()
+    Game_Date = gameDate()
+    
     Player_Ship = Ship(Company_Name)
     Player_Gold = Gold(1000)
     Player_WHouse = Warehouse("My Warehouse")
@@ -371,10 +405,20 @@ def Select_TradeItem():
         if (len(Selection) > 0) :
             Selection = Selection[0].upper()
 
-    return(Selection)
+    match Selection:
+        case "O":
+            RetVal = 0
+        case "S":
+            RetVal = 1
+        case "A":
+            RetVal = 2
+        case "G":
+            RetVal = 3
+        case "Q":
+            RetVal = 9
+
+    return(RetVal)
         
-
-
 
 #
 # ┌──────────────────────────────────────────────────────────────────────┐
@@ -398,7 +442,7 @@ def print_GameStatus() :
     print(f"{cr.Fore.GREEN} ┌──────────────────────────────────────────────────────────────────────┐")
     print(f"{cr.Fore.GREEN} │" + ("Firm: " + Player_Ship.GetShipName()).center(70) + "│")
     print(f"{cr.Fore.GREEN} │  {cr.Fore.WHITE}" + Game_Port.GetPortName().ljust(49),end="")
-    print(f"{cr.Fore.GREEN}Date: {cr.Fore.WHITE}" +"99 JAN 1860",end="")
+    print(f"{cr.Fore.GREEN}Date: {cr.Fore.WHITE}" + Game_Date.GetDate(),end="")
     print(f"{cr.Fore.GREEN}  │")
     print(f"{cr.Fore.GREEN} │ ┌────────────────────────────────────┐ ┌───────────────────────────┐ │")
     print(f"{cr.Fore.GREEN} │ │ Goods    Price   Ship   Warehouse  │ │ Gold On Hand : " + str("{:,}".format(Player_Gold.GetGoldOnHand())).ljust(11) + "│ │")
@@ -414,17 +458,16 @@ def print_GameStatus() :
     
 
 def Ship_UnderAttack():
-
     underAttack = True
     piratesInitial = random.randrange(1, 15, 1)   # Set intitial number of attacking ships 
     piratesDefense = (piratesInitial * 100)       # Each ship takes 100 points of damage to sink it.
     piratesLeft = piratesInitial   # use piratesInitial to calculate the flotsam and jetsam.  more initial ships = greater reward
+
     while (underAttack):
         Clear_Screen()
         shipDamageTaken = int(random.randrange(1, ((piratesLeft if piratesLeft > 0 else 1)*2), 1))  # damage taken to Player_Ship -  calc on number of pirates left
         Player_Ship.DamageShip(shipDamageTaken)
         print_GameStatus()
-
         Print_PirateShips(piratesLeft)
 
         print(f"We are under attack by{cr.Fore.YELLOW} " + str(piratesLeft), end=" ")
@@ -446,11 +489,11 @@ def Ship_UnderAttack():
             attackValue = Player_Ship.Attack()               # Ship Attack is based on Guns in ship
             piratesDefense = (piratesDefense - attackValue)
             piratesLeft = (piratesDefense // 100)
-            if (piratesLeft < 1):
+            if (piratesLeft <= 0):
                 print(f"{cr.Fore.WHITE}Victory!  We have sunk all of the attacking ships!")
-                FlotsamQty = int(random.randrange(1, int(piratesInitial), 1))
+                FlotsamQty = int(random.randrange(1, piratesInitial, 1))
                 FlotsamItem = int(random.randrange(1, 4, 1))
-                print("We have recovered some flotsam and jetsam.",FlotsamQty, "of",Player_Ship.GetItemName(FlotsamItem))
+                print("We have recovered some flotsam and jetsam.",FlotsamQty, "of",Game_Items.GetItemName(FlotsamItem))
                 if (FlotsamQty > Player_Ship.GetShipCurrentCapacity()):
                     FlotsamQty = Player_Ship.GetShipCurrentCapacity()
                 Player_Ship.AddItem(FlotsamItem,FlotsamQty)
@@ -471,8 +514,10 @@ def Ship_UnderAttack():
     
 
 def Travel_toPort():
+    global Game_Date
 
     Port_Desired = ""
+    DaysAtSea = random.randrange(2, 7, 1)
     print(Game_Port.GetPortNameList())
     
     while (Port_Desired != "H") and (Port_Desired != "B") and (Port_Desired != "C") and (Port_Desired != "J") and (Port_Desired != "M") and (Port_Desired != "P") and (Port_Desired != "R") and (Port_Desired != "S") and (Port_Desired != "Q") :
@@ -504,17 +549,24 @@ def Travel_toPort():
         print("We're already there!")
         Port_Desired = input("Press <ENTER> to continue")
     else :
+        Game_Date.IncrementDate(DaysAtSea)
         Game_Items.SetPrices()
         Game_Port.SetPort(newGamePort)
-        Attack = random.randrange(1, 10, 1)
-        if (Attack > 6):
+        Disaster = random.randrange(1, 10, 1)
+        if (Disaster > 6):
             Ship_UnderAttack()
+        elif (Disaster < 2):
+            Game_Port.SetPort(random.randrange(1, 8, 1))
+            print("Storm! We've been blown off course")
+            Port_Desired = input("Press <ENTER> to continue")
 
-def Buy_Cargo(bIndex):
-    print(f"Buy {Game_Items.GetItemName(bIndex)}!")
-    print(f"You can afford {Can_Buy} {Game_Items.GetItemName(bIndex)}.")
+        
+
+def Buy_Cargo():
     bIndex = Select_TradeItem()
     Can_Buy = (Player_Gold.GetGoldOnHand() // Game_Items.GetItemPrice(bIndex))
+    print(f"Buy {Game_Items.GetItemName(bIndex)}!")
+    print(f"You can afford {Can_Buy} {Game_Items.GetItemName(bIndex)}.")
     Want_Buy = int(input("How much do you want to buy?"))
     if (Want_Buy > Can_Buy):
         print("Unable to complete the transaction.  Insufficient Funds!")
@@ -528,10 +580,10 @@ def Buy_Cargo(bIndex):
    
 
 def Sell_Cargo():
+    sIndex = Select_TradeItem()
     print(f"Sell {Game_Items.GetItemName(sIndex)}!")
     print(f"You have {Player_Ship.GetItemQty(sIndex)} of {Game_Items.GetItemName(sIndex)} to sell.")
-    sIndex = Select_TradeItem()
-    Want_Sell = int(input("How much do you want to sell?"))
+    Want_Sell = input("How much do you want to sell?")
 
     if (Player_Ship.RemoveItem(sIndex, Want_Sell) == False):
         print("Unable to complete the transaction.  Check capacity!")
@@ -718,9 +770,9 @@ def Play():
   
         match User_Action:
             case "B":
-                Buy_SelectItem()
+                Buy_Cargo()
             case "S":
-                Sell_SelectItem()
+                Sell_Cargo()
             case "T":
                 Travel_toPort()
     
