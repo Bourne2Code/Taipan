@@ -235,6 +235,10 @@ class playerShip:
     def GetGuns(self):
         return (self.shipGuns)
 
+    def SetGuns(self, newGuns):
+        self.shipGuns = newGuns
+        return (self.shipGuns)
+
     def GetDamage(self):
         return (self.maxDefense-self.shipDefense)
 
@@ -250,14 +254,15 @@ class playerShip:
     def GetMaxCapacity(self):
         return(self.maxCapacity)
         
+    def SetMaxCapacity(self,newCap):
+        self.maxCapacity = newCap
+        return(self.maxCapacity)
+    
     def GetCapacity(self):
         return(round(self.maxCapacity * (self.shipDefense / self.maxDefense)))
 
     def GetCurrentCapacity(self):
         return(self.GetCapacity() - self.GetTotalWeight())
-    
-    def SetCapacity(self,newCap):
-        self.maxCapacity = newCap
     
     def AddItem(self, index, amount2add):
         retVal = False
@@ -323,8 +328,8 @@ class pirateFleet:
 
 # damage delivered to Player_Ship -  calc on number of pirateShips)
     def Attack(self):
-        dMin = self.GetShips()
-        dMax = (self.GetShips()*9)
+        dMin = (self.GetShips()*2)
+        dMax = (self.GetShips()*12)
         return (int(random.randrange(dMin, dMax, 5)))
 
 # Ships outrun by Player_Ship
@@ -520,7 +525,7 @@ def Print_GameStatus() :
     print(f"{cr.Fore.GREEN} │ │ " + str(Trade_Items.GetItemName(2)).ljust(9) + str(Trade_Items.GetItemPrice(2)).ljust(8) + str(Player_Ship.GetItemQty(2)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(2))).ljust(11) + "│ │ Ship Capacity : " + (str(Player_Ship.GetCapacity()) + " / " + str(Player_Ship.GetMaxCapacity())).ljust(10) + "│ │")
     print(f"{cr.Fore.GREEN} │ │ " + str(Trade_Items.GetItemName(3)).ljust(9) + str(Trade_Items.GetItemPrice(3)).ljust(8) + str(Player_Ship.GetItemQty(3)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(3))).ljust(11) + "│ │ Ship Guns     : " + str(Player_Ship.GetGuns()).ljust(10) + "│ │")
     print(f"{cr.Fore.GREEN} │ │                  ================= │ │ Ship Defense  : "  + str(Player_Ship.GetDefense()).ljust(10) + "│ │")
-    print(f"{cr.Fore.GREEN} │ │       Available  " + str(Player_Ship.GetCurrentCapacity()).ljust(7) + str("{:,}".format(Player_WHouse.GetCurrentCapacity())).ljust(11) + "│ │ Ship Status   : " + str(Player_Ship.GetStatus()).ljust(3) + "%      │ │")
+    print(f"{cr.Fore.GREEN} │ │       Available  " + str(Player_Ship.GetCurrentCapacity()).ljust(7) + str("{:,}".format(Player_WHouse.GetCurrentCapacity())).ljust(11) + "│ │ Ship Status   : " + str(Player_Ship.GetStatus()).rjust(3) + "%      │ │")
     print(f"{cr.Fore.GREEN} │ └────────────────────────────────────┘ └───────────────────────────┘ │")
     print(f"{cr.Fore.GREEN} └──────────────────────────────────────────────────────────────────────┘")
     
@@ -563,7 +568,7 @@ def Print_AttackStatus() :
 
 def Ship_UnderAttack():
     underAttack = True
-    Pirate_Fleet.SetShips(random.randrange(1, 15, 1))
+    Pirate_Fleet.SetShips(random.randrange(1, 20, 1))
     piratesInitial = Pirate_Fleet.GetShips()
 
     while (underAttack):
@@ -573,6 +578,26 @@ def Ship_UnderAttack():
         print("Atacked: " + str(shipDamageTaken))
         Print_AttackStatus()
         Print_PirateShips(Pirate_Fleet.GetShips())
+
+        if (int(Player_Ship.GetStatus()) < 25) :
+            print("You have been boarded by pirates!")
+            StolenPct = (random.randrange(55, 90, 5) * .01)
+            x = 0
+            r = 0
+            for x in range(4) :
+                r = int(Player_Ship.GetItemQty(x) * StolenPct)
+                Player_Ship.RemoveItem(x, r)
+                x = (x + 1)
+
+            NewGold = 0
+            NewGold = Player_Gold.GetGoldOnHand() - (int(Player_Gold.GetGoldOnHand() * StolenPct))
+
+            Player_Gold.SetGoldOnHand(NewGold)
+            print("Pirates stole", int(StolenPct * 100), "percent of your gold and goods")
+            Pirate_Fleet.SetShips(0)
+            underAttack = False
+            continueGame = input("Press <ENTER> to continue")
+            break
 
 
         RunFight = ""
@@ -610,21 +635,21 @@ def Ship_UnderAttack():
                     print("We have outrun", pOutRun, "ships!")
         
             case "S" :
-                StolenPct = (random.randrange(55, 90, 5) * .01)
+                print("You have surrendered to the pirates!")
+                StolenPct = (random.randrange(35, 70, 5) * .01)
 
                 x = 0
                 r = 0
                 for x in range(4) :
                     r = int(Player_Ship.GetItemQty(x) * StolenPct)
                     Player_Ship.RemoveItem(x, r)
-                    print("Pirates stole ", r, Trade_Items.GetItemName(x))
                     x = (x + 1)
 
                 NewGold = 0
                 NewGold = Player_Gold.GetGoldOnHand() - (int(Player_Gold.GetGoldOnHand() * StolenPct))
 
                 Player_Gold.SetGoldOnHand(NewGold)
-                print("Pirates stole", (StolenPct * 100), "percent of your gold and goods")
+                print("Pirates took", int(StolenPct * 100), "percent of your gold and goods")
                 Pirate_Fleet.SetShips(0)
                 underAttack = False
 
@@ -709,7 +734,6 @@ def Buy_Cargo():
             Want_Buy = input("Press <ENTER> to continue")
 
 
-   
 
 def Sell_Cargo():
     sIndex = Select_TradeItem()
@@ -867,7 +891,40 @@ def Repair_Ship():
         else :
             Player_Gold.SpendGold(Want_Repair * 10)
             Player_Ship.Repair(Want_Repair)
-   
+
+
+def Upgrade_Ship():
+    uGun = 0
+    uCap = 0
+
+    print("Upgrading a ship's maximum costs 100 gold per item weight.")
+    print("Upgrading a ship's guns costs 1000 gold per gun. ")
+
+    upGrade = ""
+
+    while (upGrade != "C") and (upGrade != "G") and (upGrade != "Q"):
+        print(f"{cr.Fore.WHITE}Would you like to upgrade {cr.Fore.GREEN}C{cr.Fore.WHITE}apacity or {cr.Fore.GREEN}G{cr.Fore.WHITE}uns?")
+        upGrade = input("[C,G,Q] ")
+        if (len(upGrade) > 0) :
+            upGrade = upGrade[0].upper()
+
+    match upGrade:
+        case "C":
+            uCap = Get_Integer("how much capacity do you want to add? (Max 1000 total)")
+            if ( (uCap + Player_Ship.GetMaxCapacity()) <= 1000) :
+                Player_Ship.SetMaxCapacity((uCap + Player_Ship.GetMaxCapacity()))
+                Player_Gold.SpendGold(uCap * 100)
+            else :
+                print("invalid upgrade capacity")
+        case "G":
+            uGun = Get_Integer("how many guns do you want to add? (Max 10 total)")
+            if ( (uGun + Player_Ship.GetGuns()) <= 10) :
+                Player_Ship.SetGuns((uGun + Player_Ship.GetGuns()))
+                Player_Gold.SpendGold(uCap * 1000)
+            else :
+                print("invalid gun upgrade")
+
+
 
 def Play():
 
@@ -878,9 +935,9 @@ def Play():
     User_Action = ""
     if (Trade_Port.GetPort() == 0):  # Hong Kong has more services
     
-        while (User_Action != "B") and (User_Action != "S") and (User_Action != "V") and (User_Action != "W") and (User_Action != "R") and (User_Action != "T"):
-            print(f"{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, {cr.Fore.GREEN}V{cr.Fore.WHITE}isit the Bank, use the {cr.Fore.GREEN}W{cr.Fore.WHITE}arehouse, {cr.Fore.GREEN}R{cr.Fore.WHITE}epair your ship, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
-            User_Action = input("[B,S,V,W,R,T] ")
+        while (User_Action != "B") and (User_Action != "S") and (User_Action != "V") and (User_Action != "W") and (User_Action != "R") and (User_Action != "U") and (User_Action != "T"):
+            print(f"{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, {cr.Fore.GREEN}V{cr.Fore.WHITE}isit the Bank, use the {cr.Fore.GREEN}W{cr.Fore.WHITE}arehouse, {cr.Fore.GREEN}R{cr.Fore.WHITE}epair your ship, {cr.Fore.GREEN}U{cr.Fore.WHITE}pgrade your ship, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
+            User_Action = input("[B,S,V,W,R,U,T] ")
             if (len(User_Action) > 0) :
                 User_Action = User_Action[0].upper()
     
@@ -895,6 +952,8 @@ def Play():
                 Use_Warehouse()
             case "R":
                 Repair_Ship()
+            case "U":
+                Upgrade_Ship()
             case "T":
                 Travel_toPort()
             case _:
