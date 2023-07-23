@@ -40,7 +40,7 @@ class gameDate:
     
 # -------[ END class gameDate ]---------
 
-class gameItems:
+class TradeItems:
 # lists = index 0 - 3
     itemName = ["Opium", "Silk", "Arms", "General"]
     itemPrice = [0, 0, 0, 0]
@@ -57,9 +57,9 @@ class gameItems:
     def GetItemName(self,index):
         return(self.itemName[index])
 
-# -------[ END class gameItems ]---------
+# -------[ END class TradeItems ]---------
 
-class gamePort:
+class TradePort:
     portNames = ["Hong Kong", "Batavia", "Calcutta", "Jambi", "Muscat", "Penang", "Rangoon", "Surat"]
     portIndex = 0
 
@@ -101,7 +101,7 @@ class gamePort:
         pChars = ",".join(portList)
         return(pChars)
 
-# -------[ END class gamePort ]---------
+# -------[ END class TradePort ]---------
 
 class playerGold:
     onHand = 0
@@ -339,42 +339,39 @@ class pirateFleet:
 # -------[ END class pirateFleet ]---------
 
 
-global Game_Items
-global Game_Port
 global Game_Date
-global Player_Ship
+global Trade_Port
+global Trade_Items
 global Player_Gold
 global Player_WHouse
+global Player_Ship
 global Pirate_Fleet
 
 
 def Clear_Screen():
     os.system('cls')
-
     
 def Config_Game():
-    global Game_Items
-    global Game_Port
     global Game_Date
-    global Player_Ship
+    global Trade_Port
+    global Trade_Items
     global Player_Gold
     global Player_WHouse
+    global Player_Ship
     global Pirate_Fleet
+
+    Game_Date = gameDate()
+    Trade_Items = TradeItems()
+    Trade_Port = TradePort()
+    Pirate_Fleet = pirateFleet(1)
 
     companyName = ""
     Clear_Screen()
     print("Welcome to the East Empire Trading Simulation!\n")
     companyName = input("What shall we use for a company name?\n")
-    
-    Game_Items = gameItems()
-    Game_Port = gamePort()
-    Game_Date = gameDate()
-    
     Player_Ship = playerShip(companyName)
     Player_Gold = playerGold(1000)
     Player_WHouse = playerWarehouse()
-
-    Pirate_Fleet = pirateFleet(1)
 
 
 def Print_PirateShips(pirateQty):
@@ -476,7 +473,7 @@ def Select_TradeItem():
 
 #
 # ┌──────────────────────────────────────────────────────────────────────┐
-# │                 Company Name : The Peace Dividend                    │
+# │                     Firm : The Peace Dividend                        │
 # │  Hong Kong                                             99 jan 1860   │
 # │ ┌────────────────────────────────────┐ ┌───────────────────────────┐ │
 # │ │ Goods    Price   Ship   Warehouse  │ │ Gold On Hand : 1,000,000  │ │
@@ -494,16 +491,16 @@ def Select_TradeItem():
 def Print_GameStatus() :
     print(f"{cr.Fore.GREEN} ┌──────────────────────────────────────────────────────────────────────┐")
     print(f"{cr.Fore.GREEN} │" + ("Firm: " + Player_Ship.GetName()).center(70) + "│")
-    print(f"{cr.Fore.GREEN} │  {cr.Fore.WHITE}" + Game_Port.GetPortName().ljust(49),end="")
+    print(f"{cr.Fore.GREEN} │  {cr.Fore.WHITE}" + Trade_Port.GetPortName().ljust(49),end="")
     print(f"{cr.Fore.GREEN}Date: {cr.Fore.WHITE}" + Game_Date.GetDate(),end="")
     print(f"{cr.Fore.GREEN}  │")
     print(f"{cr.Fore.GREEN} │ ┌────────────────────────────────────┐ ┌───────────────────────────┐ │")
     print(f"{cr.Fore.GREEN} │ │ Goods    Price   Ship   Warehouse  │ │ Gold On Hand : " + str("{:,}".format(Player_Gold.GetGoldOnHand())).ljust(11) + "│ │")
     print(f"{cr.Fore.GREEN} │ │ ================================== │ │ Gold in Bank : " + str("{:,}".format(Player_Gold.GetGoldInBank())).ljust(11) + "│ │")
-    print(f"{cr.Fore.GREEN} │ │ " + str(Game_Items.GetItemName(0)).ljust(9) + str(Game_Items.GetItemPrice(0)).ljust(8) + str(Player_Ship.GetItemQty(0)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(0))).ljust(11) + "│ │ Gold in Debt : " + str("{:,}".format(round(Player_Gold.GetGoldInDebt()))).ljust(11) + "│ │")
-    print(f"{cr.Fore.GREEN} │ │ " + str(Game_Items.GetItemName(1)).ljust(9) + str(Game_Items.GetItemPrice(1)).ljust(8) + str(Player_Ship.GetItemQty(1)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(1))).ljust(11) + "│ ├───────────────────────────┤ │")
-    print(f"{cr.Fore.GREEN} │ │ " + str(Game_Items.GetItemName(2)).ljust(9) + str(Game_Items.GetItemPrice(2)).ljust(8) + str(Player_Ship.GetItemQty(2)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(2))).ljust(11) + "│ │ Ship Capacity : " + (str(Player_Ship.GetCapacity()) + " / " + str(Player_Ship.GetMaxCapacity())).ljust(10) + "│ │")
-    print(f"{cr.Fore.GREEN} │ │ " + str(Game_Items.GetItemName(3)).ljust(9) + str(Game_Items.GetItemPrice(3)).ljust(8) + str(Player_Ship.GetItemQty(3)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(3))).ljust(11) + "│ │ Ship Guns     : " + str(Player_Ship.GetGuns()).ljust(10) + "│ │")
+    print(f"{cr.Fore.GREEN} │ │ " + str(Trade_Items.GetItemName(0)).ljust(9) + str(Trade_Items.GetItemPrice(0)).ljust(8) + str(Player_Ship.GetItemQty(0)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(0))).ljust(11) + "│ │ Gold in Debt : " + str("{:,}".format(round(Player_Gold.GetGoldInDebt()))).ljust(11) + "│ │")
+    print(f"{cr.Fore.GREEN} │ │ " + str(Trade_Items.GetItemName(1)).ljust(9) + str(Trade_Items.GetItemPrice(1)).ljust(8) + str(Player_Ship.GetItemQty(1)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(1))).ljust(11) + "│ ├───────────────────────────┤ │")
+    print(f"{cr.Fore.GREEN} │ │ " + str(Trade_Items.GetItemName(2)).ljust(9) + str(Trade_Items.GetItemPrice(2)).ljust(8) + str(Player_Ship.GetItemQty(2)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(2))).ljust(11) + "│ │ Ship Capacity : " + (str(Player_Ship.GetCapacity()) + " / " + str(Player_Ship.GetMaxCapacity())).ljust(10) + "│ │")
+    print(f"{cr.Fore.GREEN} │ │ " + str(Trade_Items.GetItemName(3)).ljust(9) + str(Trade_Items.GetItemPrice(3)).ljust(8) + str(Player_Ship.GetItemQty(3)).ljust(7) + str("{:,}".format(Player_WHouse.GetItemQty(3))).ljust(11) + "│ │ Ship Guns     : " + str(Player_Ship.GetGuns()).ljust(10) + "│ │")
     print(f"{cr.Fore.GREEN} │ │                  ================= │ │ Ship Defense  : "  + str(Player_Ship.GetDefense()).ljust(10) + "│ │")
     print(f"{cr.Fore.GREEN} │ │       Available  " + str(Player_Ship.GetCurrentCapacity()).ljust(7) + str("{:,}".format(Player_WHouse.GetCurrentCapacity())).ljust(11) + "│ │ Ship Status   : " + str(Player_Ship.GetStatus()).ljust(3) + "%      │ │")
     print(f"{cr.Fore.GREEN} │ └────────────────────────────────────┘ └───────────────────────────┘ │")
@@ -512,7 +509,6 @@ def Print_GameStatus() :
 
 
 # ┌──────────────────────────────────────────────────────────────────────┐
-# │                 Company Name : The Peace Dividend                    │
 # │                               PIRATES!                               │
 # │  ┌─────────────────────────────┐    ┌─────────────────────────────┐  │
 # │  │  Pirate Ships   : 99        │    │  Gold On Hand  : 1,000,000  │  │
@@ -529,8 +525,10 @@ def Print_GameStatus() :
 
 def Print_AttackStatus() :
     print(f"{cr.Fore.GREEN} ┌──────────────────────────────────────────────────────────────────────┐")
-    print(f"{cr.Fore.GREEN} │" + ("Firm: " + Player_Ship.GetName()).center(70) + "│")
-    print(f"{cr.Fore.GREEN} │" + str("PIRATES!").center(70) + "│")
+
+    print(f"{cr.Fore.GREEN} │", end=" ")
+    print(f"{cr.Fore.RED} " + str("PIRATES!").center(66)  , end=" ")
+    print(f"{cr.Fore.GREEN} │")
 
     print(f"{cr.Fore.GREEN} │  ┌─────────────────────────────┐    ┌─────────────────────────────┐  │")
     print(f"{cr.Fore.GREEN} │  │  Pirate Ships   : " + str("{:,}".format(Pirate_Fleet.GetShips())).ljust(10) + "│    │  Gold On Hand  : " + str("{:,}".format(Player_Gold.GetGoldOnHand())).ljust(11) + "│  │")
@@ -581,13 +579,13 @@ def Ship_UnderAttack():
             if (Pirate_Fleet.GetShips() < 1) :
                 underAttack = False
                 print(f"{cr.Fore.WHITE}Victory!  We have sunk all of the attacking pirate ships!")
-                FlotsamQty = int(random.randrange(1, piratesInitial, 1))
+                FlotsamQty = int(random.randrange(1, (piratesInitial+1), 1))
                 FlotsamItem = int(random.randrange(1, 4, 1))
 
                 if (FlotsamQty > Player_Ship.GetCurrentCapacity()):
                     FlotsamQty = Player_Ship.GetCurrentCapacity()
                 Player_Ship.AddItem(FlotsamItem,FlotsamQty)
-                print("We have recovered some flotsam and jetsam.",FlotsamQty, "of",Game_Items.GetItemName(FlotsamItem))
+                print("We have recovered some flotsam and jetsam.",FlotsamQty, "of",Trade_Items.GetItemName(FlotsamItem))
             else :
                 print(f"{cr.Fore.WHITE}We hit them with  ", pDamage, "damage.")
                 print(f"{cr.Fore.WHITE}There are still ", Pirate_Fleet.GetShips(), "ships attacking!")
@@ -612,42 +610,42 @@ def Travel_toPort():
     print(f"{cr.Fore.WHITE}Where would you like to go? {cr.Fore.GREEN}H{cr.Fore.WHITE}ong Kong, {cr.Fore.GREEN}B{cr.Fore.WHITE}atavia, {cr.Fore.GREEN}C{cr.Fore.WHITE}alcutta, {cr.Fore.GREEN}J{cr.Fore.WHITE}ambi, {cr.Fore.GREEN}M{cr.Fore.WHITE}uscat, {cr.Fore.GREEN}P{cr.Fore.WHITE}enang, {cr.Fore.GREEN}R{cr.Fore.WHITE}angoon, {cr.Fore.GREEN}S{cr.Fore.WHITE}urat")
     
     while (Port_Desired != "H") and (Port_Desired != "B") and (Port_Desired != "C") and (Port_Desired != "J") and (Port_Desired != "M") and (Port_Desired != "P") and (Port_Desired != "R") and (Port_Desired != "S") and (Port_Desired != "Q") :
-        Port_Desired = input("Where would you like to go? ["+Game_Port.GetPortCharList()+",Q] ")
+        Port_Desired = input("Where would you like to go? ["+Trade_Port.GetPortCharList()+",Q] ")
         if (len(Port_Desired) > 0) :
             Port_Desired = Port_Desired[0].upper()
 
     match Port_Desired:
         case "H":
-            newGamePort = 0
+            newTradePort = 0
         case "B":
-            newGamePort = 1
+            newTradePort = 1
         case "C":
-            newGamePort = 2
+            newTradePort = 2
         case "J":
-            newGamePort = 3
+            newTradePort = 3
         case "M":
-            newGamePort = 4
+            newTradePort = 4
         case "P":
-            newGamePort = 5
+            newTradePort = 5
         case "R":
-            newGamePort = 6
+            newTradePort = 6
         case "S":
-            newGamePort = 7
+            newTradePort = 7
         case "Q":
-            newGamePort = Game_Port.GetPort()
+            newTradePort = Trade_Port.GetPort()
             
-    if (newGamePort == Game_Port.GetPort()):
+    if (newTradePort == Trade_Port.GetPort()):
         print("We're already there!")
         Port_Desired = input("Press <ENTER> to continue")
     else :
         Game_Date.IncrementDate(DaysAtSea)
-        Game_Items.SetPrices()
-        Game_Port.SetPort(newGamePort)
+        Trade_Items.SetPrices()
+        Trade_Port.SetPort(newTradePort)
         Disaster = random.randrange(1, 10, 1)
         if (Disaster > 7):
             Ship_UnderAttack()
         elif (Disaster < 2):
-            Game_Port.SetPort(random.randrange(1, 8, 1))
+            Trade_Port.SetPort(random.randrange(1, 8, 1))
             print("Storm! We've been blown off course")
             Port_Desired = input("Press <ENTER> to continue")
 
@@ -656,16 +654,21 @@ def Buy_Cargo():
     Payment_State = 0
     bIndex = Select_TradeItem()
     if bIndex != 9 :
-        Can_Afford = (Player_Gold.GetGoldOnHand() // Game_Items.GetItemPrice(bIndex))
-        print(f"Buy {Game_Items.GetItemName(bIndex)}!")
-        print(f"You can afford {Can_Afford} {Game_Items.GetItemName(bIndex)}.")
+        Can_Afford = (Player_Gold.GetGoldOnHand() // Trade_Items.GetItemPrice(bIndex))
+        print(f"Buy {Trade_Items.GetItemName(bIndex)}!")
+
+        print(f"You can afford {Can_Afford} {Trade_Items.GetItemName(bIndex)}.")
+        if (Can_Afford > Player_Ship.GetCurrentCapacity()) :
+            print(f"You can only hold {Player_Ship.GetCurrentCapacity()} more {Trade_Items.GetItemName(bIndex)}.")
+
         Want_Buy = int(input("How much do you want to buy? "))
+
         if (Want_Buy > 0) and (Want_Buy <= Can_Afford) :
             if (Player_Ship.AddItem(bIndex, Want_Buy) == False):
                 print("Unable to complete the transaction.  Check capacity!")
                 Want_Buy = input("Press <ENTER> to continue")
             else :
-                Payment_State = (Player_Gold.SpendGold(Want_Buy * Game_Items.GetItemPrice(bIndex)))
+                Payment_State = (Player_Gold.SpendGold(Want_Buy * Trade_Items.GetItemPrice(bIndex)))
                 if (Payment_State == 0) :
                     print("payment transfered")
                 else :
@@ -681,8 +684,8 @@ def Buy_Cargo():
 def Sell_Cargo():
     sIndex = Select_TradeItem()
     Can_Sell = Player_Ship.GetItemQty(sIndex)
-    print(f"Sell {Game_Items.GetItemName(sIndex)}!")
-    print(f"You have {Player_Ship.GetItemQty(sIndex)} of {Game_Items.GetItemName(sIndex)} to sell.")
+    print(f"Sell {Trade_Items.GetItemName(sIndex)}!")
+    print(f"You have {Player_Ship.GetItemQty(sIndex)} of {Trade_Items.GetItemName(sIndex)} to sell.")
     Want_Sell = int(input("How much do you want to sell? "))
 
     if (Want_Sell > 0) and (Want_Sell <= Can_Sell) :
@@ -690,7 +693,7 @@ def Sell_Cargo():
             print("Unable to complete the transaction.  Check capacity!")
             Want_Sell = input("Press <ENTER> to continue")
         else:
-            Player_Gold.AddGold(Want_Sell * Game_Items.GetItemPrice(sIndex))
+            Player_Gold.AddGold(Want_Sell * Trade_Items.GetItemPrice(sIndex))
     else:
         print("Invalid Amount Selected")
         Want_Sell = input("Press <ENTER> to continue")
@@ -745,8 +748,8 @@ def Store_Cargo():
     else:
         Can_Store = onShip
 
-    print(f"Store {Game_Items.GetItemName(sIndex)}!")
-    print("You can store", Can_Store, Game_Items.GetItemName(sIndex),".")
+    print(f"Store {Trade_Items.GetItemName(sIndex)}!")
+    print("You can store", Can_Store, Trade_Items.GetItemName(sIndex),".")
 
     qty2Store = int(input("How much do you want to store? "))
     while (qty2Store < 0) and (qty2Store > Can_Store):
@@ -758,7 +761,7 @@ def Store_Cargo():
         if (Player_WHouse.StoreItem(sIndex,qty2Store) == False):
             print("Unable to complete the transaction.  Check Warehouse capacity!")
         else:
-            print("Stored", qty2Store,Game_Items.GetItemName(sIndex))
+            print("Stored", qty2Store,Trade_Items.GetItemName(sIndex))
 
     continueGame = input("Press <ENTER> to continue")
 
@@ -773,15 +776,15 @@ def Retrieve_Cargo():
     else: 
         Can_Retrieve = inWhouse
 
-    print(f"Retrieve {Game_Items.GetItemName(rIndex)}!")
-    print("You can retrieve", Can_Retrieve, Game_Items.GetItemName(rIndex),".")
+    print(f"Retrieve {Trade_Items.GetItemName(rIndex)}!")
+    print("You can retrieve", Can_Retrieve, Trade_Items.GetItemName(rIndex),".")
 
     qty2Retrieve = int(input("How much do you want to retrieve? "))
     while (qty2Retrieve < 0) and (qty2Retrieve > Can_Retrieve):
-        print("You can retrieve", Can_Retrieve, Game_Items.GetItemName(rIndex),".")
+        print("You can retrieve", Can_Retrieve, Trade_Items.GetItemName(rIndex),".")
         qty2Retrieve = int(input("How much do you want to retrieve ?"))
 
-    print(f"Retrieve {Game_Items.GetItemName(rIndex)}!")
+    print(f"Retrieve {Trade_Items.GetItemName(rIndex)}!")
 
     if (Player_WHouse.RetrieveItem(rIndex,qty2Retrieve) == False):
         print("Unable to complete the transaction.  Check Warehouse capacity!")
@@ -791,7 +794,7 @@ def Retrieve_Cargo():
             print("Returning cargo")
             Player_WHouse.StoreItem(rIndex,qty2Retrieve)
         else:
-            print("Retrieved", qty2Retrieve,Game_Items.GetItemName(rIndex))
+            print("Retrieved", qty2Retrieve,Trade_Items.GetItemName(rIndex))
 
     continueGame = input("Press <ENTER> to continue")
 
@@ -816,7 +819,7 @@ def Use_Warehouse():
 
 def Repair_Ship():
     dAmount = Player_Ship.GetDamage()
-    repCost = (damAmount * 10)
+    repCost = (dAmount * 10)
 
     print("Repairing a ship costs 10 gold per damage point.")
     print("Your ship has "+str(dAmount)+" damage points.")
@@ -842,7 +845,7 @@ def Play():
 
     print("\n")
     User_Action = ""
-    if (Game_Port.GetPort() == 0):  # Hong Kong has more services
+    if (Trade_Port.GetPort() == 0):  # Hong Kong has more services
     
         while (User_Action != "B") and (User_Action != "S") and (User_Action != "V") and (User_Action != "W") and (User_Action != "R") and (User_Action != "T"):
             print(f"{cr.Fore.WHITE}Would you like to {cr.Fore.GREEN}B{cr.Fore.WHITE}uy, {cr.Fore.GREEN}S{cr.Fore.WHITE}ell, {cr.Fore.GREEN}V{cr.Fore.WHITE}isit the Bank, use the {cr.Fore.GREEN}W{cr.Fore.WHITE}arehouse, {cr.Fore.GREEN}R{cr.Fore.WHITE}epair your ship, or {cr.Fore.GREEN}T{cr.Fore.WHITE}ravel to a new port?")
